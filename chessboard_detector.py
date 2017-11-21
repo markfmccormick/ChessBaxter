@@ -1,6 +1,6 @@
 import numpy as np
 import cv2
-from matplotlib import pyplot as plt
+# from matplotlib import pyplot as plt
 import glob
 import time
 import rospy
@@ -113,7 +113,7 @@ def chessboard_segmentation(img1):
 def chessboard_homography():
 	MIN_MATCH_COUNT = 10
 
-	img1 = cv2.imread('/home/lorenzo/catkin_ws/src/chessboard_detection/src/my_chessboard.png',0)
+	img1 = cv2.imread('my_chessboard.png',0)
 
 	# Retrieve list of files in the folder where the pictures are
 	list_of_pictures = sorted(glob.glob("kinect_images/*.jpeg"),key=natural_keys)
@@ -127,8 +127,8 @@ def chessboard_homography():
 	if(len(list_of_pictures)!=0):
 		# Take the last picture taken and its number to process it
 		counter = list_of_counters[-1]
-		img2 = cv2.imread('/home/lorenzo/catkin_ws/src/chessboard_detection/src/kinect_images/camera_image'+str(counter)+'.jpeg',0)
-		colour_img = cv2.imread('/home/lorenzo/catkin_ws/src/chessboard_detection/src/kinect_images/camera_image'+str(counter)+'.jpeg')
+		img2 = cv2.imread('kinect_images/camera_image'+str(counter)+'.jpeg',0)
+		colour_img = cv2.imread('kinect_images/camera_image'+str(counter)+'.jpeg')
 		# print counter
 		# cv2.imshow("i",img2)
 		# cv2.waitKey(0)
@@ -149,7 +149,7 @@ def chessboard_homography():
 			if(len(list_of_pictures)!=0):
 				# Take the last picture taken and its number to process it
 				counter = list_of_counters[-1]
-				img2 = cv2.imread('/home/lorenzo/catkin_ws/src/chessboard_detection/src/kinect_images/camera_image'+str(counter)+'.jpeg',0)
+				img2 = cv2.imread('kinect_images/camera_image'+str(counter)+'.jpeg',0)
 
 
 	#rospy.init_node('image_processor')

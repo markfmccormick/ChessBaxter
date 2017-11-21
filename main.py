@@ -38,9 +38,8 @@ while result == "":
 	for filename in glob.glob('sliding_windows/halves/*.jpg'):
 		filenames.append(filename)
 
-
 	# Sort by natural keys
-	filenames = sorted(filenames,key=natural_keys)
+	filenames = sorted(filenames, key=natural_keys)
 
 	with tf.gfile.FastGFile("retrained_graph_for_square_or_non_square.pb", 'rb') as f:
 		graph_def = tf.GraphDef()
@@ -67,13 +66,14 @@ while result == "":
 		filenames.append(filename)
 
 	# Sort by natural keys
-	filenames = sorted(filenames,key=natural_keys)
+	filenames = sorted(filenames, key=natural_keys)
 
 	# Unpersists graph from file for chess piece
 	with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
 		graph_def = tf.GraphDef()
 		graph_def.ParseFromString(f.read())
 		_ = tf.import_graph_def(graph_def, name='graph1')
+
 
 	colours = []
 	counter = 0
@@ -111,9 +111,9 @@ while result == "":
 		_ = tf.import_graph_def(graph_def, name='graph2')
 
 	colours = []
-	for c in range(0,64):
-		if(results[c] in pieces):
-			filename_colour = 'sliding_windows/sliding_window'+str(c)+'.jpg'
+	for c in range(0, 64):
+		if (results[c] in pieces):
+			filename_colour = 'sliding_windows/sliding_window' + str(c) + '.jpg'
 			colour_prediction, colour_score = label_colour(filename_colour)
 			colours.append(colour_prediction)
 			print results[c], colour_prediction
@@ -122,8 +122,8 @@ while result == "":
 			print results[c]
 		c += 1
 
-	for c in range(0,64):
-		if c%8==0:
+	for c in range(0, 64):
+		if c % 8 == 0:
 			print "\n"
 		if results[c] in pieces and colours[c] == "whites":
 			results[c] = results[c].upper()
@@ -238,7 +238,6 @@ while result == "":
 		current_state_of_the_board += str(consecutive_empty_square_counter)
 
 
-
 	chessboard_state_details = " " + returned_state_of_the_board.split(" ", 1)[1]
 
 	whose_turn = chessboard_state_details[1]
@@ -253,3 +252,4 @@ while result == "":
 
 
 	time.sleep(1)
+

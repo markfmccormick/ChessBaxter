@@ -1,5 +1,6 @@
 import chess
 import chess.uci
+import stockfish
 
 
 
