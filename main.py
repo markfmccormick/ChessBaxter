@@ -1,18 +1,16 @@
-import numpy as np
-import cv2
-import math
-from chessboard_detector import chessboard_homography
-from final_sliding_window import final_sliding_window
-import chess
-import chess.uci
 import glob
-from label_square import label_square
-from label_image import label_image
-from label_colour import label_colour
 import re
-import tensorflow as tf, sys
-from chess_move import my_next_move
 import time
+
+import tensorflow as tf
+from final_sliding_window import final_sliding_window
+from label_colour import label_colour
+from label_image import label_image
+
+from chess_move import my_next_move
+from chessboard_detector import chessboard_homography
+from label_square import label_square
+
 
 # Natural human sorting
 def atoi(text):

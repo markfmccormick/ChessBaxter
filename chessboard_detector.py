@@ -123,6 +123,9 @@ def chessboard_homography():
 		counter = counter.split('.')[0]
 		list_of_counters.append(counter)
 
+	print list_of_pictures
+	print list_of_counters
+
 	# If there exist files - ie pictures - in that folder, retrieve the latest one
 	if(len(list_of_pictures)!=0):
 		# Take the last picture taken and its number to process it
