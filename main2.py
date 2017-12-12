@@ -15,6 +15,8 @@ import cv2
 import numpy as np
 import os, sys
 import seaborn as sns
+import matplotlib as mpl
+import matplotlib.pyplot as plt
 
 
 
@@ -66,6 +68,25 @@ def label_image(image_path):
 
 	return predictions
 
+def print_prediction(predictions):
+	label_lines = [line.rstrip() for line
+						in tf.gfile.GFile("retrained_labels.txt")]
+	# Sort to show labels of first prediction in order of confidence
+	top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
+
+	boo = True
+	# print "\n"
+	for node_id in top_k:
+		human_string = label_lines[node_id]
+		score = predictions[0][node_id]
+		# print('%s (score = %.5f)' % (human_string, score))
+		if boo:
+			prediction = human_string
+			prediction_score = score
+			boo = False
+
+	return prediction, prediction_score
+
 
 def sliding_window(image, stepSize, windowSize):
 	# slide window across the image
@@ -87,6 +108,18 @@ def create_heatmap(image, stepSize, windowSize):
 
 			cv2.imwrite('window.jpeg', window)
 			predictions = label_image('window.jpeg')
+
+			# print check
+			# # show steps
+			# print x,y
+			# print print_prediction(predictions)
+			# # windowimg = cv2.imread('window.jpeg')
+			# # check = cv2.imshow('Window', windowimg)
+			# # print check
+			# # raw_input("Press Enter to continue....")
+			# # cv2.destroyAllWindows()
+			# raw_input("Press Enter to continue")
+
 			os.remove('window.jpeg')
 
 			for n in range(windowSize[1]):
@@ -103,7 +136,7 @@ def create_heatmap(image, stepSize, windowSize):
 	# colour_img, img_with_matches, img_with_homography, points = chessboard_homography()
 window_x = 50
 window_y = 50
-stepSize = 5
+stepSize = 50
 img = cv2.imread('kinect_images/camera_image4.jpeg')
 
 with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
@@ -119,9 +152,12 @@ kingmap = np.zeros((img.shape[0], img.shape[1]))
 
 for x in range(kingmap.shape[0]):
 	for y in range(kingmap.shape[1]):
-		kingmap[x][y] = heatmap[x][y][0]
+		kingmap[x][y] = heatmap[x][y][2]
+
+print "at heatmap creation"
 
 sns.heatmap(kingmap)
+plt.show()
 # print img.shape
 # windows = sliding_window(img, step_size, (window_x,window_y))
 # count = 0

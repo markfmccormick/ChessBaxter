@@ -1,2 +1,1 @@
 roslaunch kinect2_bridge kinect2_bridge.launch
-python photographer.py
