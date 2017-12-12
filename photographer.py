@@ -33,7 +33,7 @@ def natural_keys(text):
 
 def image_callback(msg):
 
-    path = "kinect_images/top_down/full_side_white_left"
+    path = "kinect_images/top_down/sparse/bishop"
     print "\nReceived an image!"
     try:
         # Convert ROS image message to openCV2
