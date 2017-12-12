@@ -32,6 +32,8 @@ def natural_keys(text):
     return [ atoi(c) for c in re.split('(\d+)', text) ]
 
 def image_callback(msg):
+
+    path = "kinect_images/top_down/full_side_white_left"
     print "\nReceived an image!"
     try:
         # Convert ROS image message to openCV2
@@ -46,7 +48,7 @@ def image_callback(msg):
             new_image_counter = 0
         new_image_counter += 1
         print new_image_counter
-        cv2.imwrite('kinect_images/camera_image' + str(new_image_counter) + '.jpeg', cv2_img)
+        cv2.imwrite(path+'/camera_image' + str(new_image_counter) + '.jpeg', cv2_img)
         time.sleep(2)
 
 
