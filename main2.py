@@ -162,8 +162,8 @@ for x in range(kingmap.shape[0]):
 print "at heatmap creation"
 
 ax = sns.heatmap(kingmap)
-plt.show()
 plt.savefig("top_angle_front_white.png")
+plt.show()
 
 # print img.shape
 # windows = sliding_window(img, step_size, (window_x,window_y))
@@ -412,4 +412,3 @@ plt.savefig("top_angle_front_white.png")
 #
 #
 # 	time.sleep(1)
-
