@@ -1,3 +1,6 @@
+import matplotlib as mpl
+mpl.use('GTKAgg')
+
 import glob
 import re
 import time
@@ -15,7 +18,8 @@ import cv2
 import numpy as np
 import os, sys
 import seaborn as sns
-import matplotlib as mpl
+# import matplotlib as mpl
+# mpl.use('GTKAgg')
 import matplotlib.pyplot as plt
 
 
@@ -134,10 +138,11 @@ def create_heatmap(image, stepSize, windowSize):
 # while result == "":
 
 	# colour_img, img_with_matches, img_with_homography, points = chessboard_homography()
-window_x = 50
-window_y = 50
-stepSize = 50
-img = cv2.imread('kinect_images/camera_image4.jpeg')
+window_x = 100
+window_y = 100
+stepSize = 20
+imgpath = 'kinect_images/top_angle/start/front_white/camera_image3.jpeg'
+img = cv2.imread(imgpath)
 
 with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
 	graph_def = tf.GraphDef()
@@ -156,8 +161,10 @@ for x in range(kingmap.shape[0]):
 
 print "at heatmap creation"
 
-sns.heatmap(kingmap)
+ax = sns.heatmap(kingmap)
 plt.show()
+plt.savefig("top_angle_front_white.png")
+
 # print img.shape
 # windows = sliding_window(img, step_size, (window_x,window_y))
 # count = 0
