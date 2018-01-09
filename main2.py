@@ -141,7 +141,7 @@ def create_heatmap(image, stepSize, windowSize):
 window_x = 100
 window_y = 100
 stepSize = 20
-imgpath = 'kinect_images/top_angle/start/front_white/camera_image3.jpeg'
+imgpath = 'kinect_images/top_down/start/front_black/camera_image1.jpeg'
 img = cv2.imread(imgpath)
 
 with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
@@ -162,7 +162,7 @@ for x in range(kingmap.shape[0]):
 print "at heatmap creation"
 
 ax = sns.heatmap(kingmap)
-plt.savefig("top_angle_front_white.png")
+plt.savefig("top_front_black.png")
 plt.show()
 
 # print img.shape
