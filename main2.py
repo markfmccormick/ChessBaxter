@@ -100,8 +100,8 @@ def sliding_window(image, stepSize, windowSize):
 
 def create_heatmap(image, stepSize, windowSize):
 
-	heatmap = np.zeros((img.shape[0], img.shape[1], 6))
-	countmap = np.zeros((img.shape[0], img.shape[1]))
+	heatmap = np.zeros((image.shape[0], image.shape[1], 6))
+	countmap = np.zeros((image.shape[0], image.shape[1]))
 
 	for y in range(0, image.shape[0], stepSize):
 		for x in range(0, image.shape[1], stepSize):
@@ -139,6 +139,7 @@ def visualise_heatmap(imgpath):
 	window_x = 100
 	window_y = 100
 	stepSize = 20
+	print imgpath
 	img = cv2.imread(imgpath)
 
 	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y))
@@ -155,7 +156,7 @@ def visualise_heatmap(imgpath):
 
 	ax = sns.heatmap(pawnmap)
 	plt.axis('off')
-	plt.savefig(imgpath+".png", bbox_inches='tight')
+	plt.savefig(imgpath[18:]+".png", bbox_inches='tight')
 	#plt.show()
 
 # while result == "":
@@ -171,7 +172,7 @@ with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
 
 imgpaths = glob.glob("kinect_images/use/*.jpeg")
 for path in imgpaths:
-	visualise_heatmap(path[18:])
+	visualise_heatmap(path)
 
 
 # print img.shape
