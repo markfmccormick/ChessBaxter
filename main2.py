@@ -156,7 +156,7 @@ def visualise_heatmap(imgpath):
 
 	ax = sns.heatmap(pawnmap)
 	plt.axis('off')
-	plt.savefig(imgpath[18:]+".png", bbox_inches='tight')
+	plt.savefig(imgpath[18:39]+".png", bbox_inches='tight')
 	#plt.show()
 
 # while result == "":
@@ -170,7 +170,7 @@ with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
 
 #imgpath = 'kinect_images/top_down/start/front_black/camera_image1.jpeg'
 
-imgpaths = glob.glob("kinect_images/use/*.jpeg")
+imgpaths = glob.glob("kinect_images/use/top_angle_front_*.jpeg")
 for path in imgpaths:
 	visualise_heatmap(path)
 
