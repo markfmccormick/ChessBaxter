@@ -170,7 +170,7 @@ with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
 
 #imgpath = 'kinect_images/top_down/start/front_black/camera_image1.jpeg'
 
-imgpaths = glob.glob("kinect_images/use/top_angle_front_*.jpeg")
+imgpaths = glob.glob("kinect_images/use/top_angle_front_black.jpeg")
 for path in imgpaths:
 	visualise_heatmap(path)
 
