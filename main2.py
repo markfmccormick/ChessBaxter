@@ -22,7 +22,23 @@ import seaborn as sns
 # mpl.use('GTKAgg')
 import matplotlib.pyplot as plt
 
+class Model(object):
 
+	def __init__(self, model_path):
+		self.session = tf.Session()
+
+		with tf.gfile.FastGFile(model_path, 'rb') as f:
+			graph_def = tf.GraphDef()
+			graph_def.ParseFromString(f.read())
+			_ = tf.import_graph_def(graph_def, name='graph1')
+
+		self.softmax_tensor = self.session.graph.get_tensor_by_name('graph1/final_result:0')
+
+	def predict(self, image_data):
+		# image_data = tf.gfile.FastGFile(image_path, 'rb').read()
+		# predictions =  self.session.run(self.softmax_tensor, {'graph1/DecodeJpeg/contents:0': image_data})
+		predictions = self.session.run(self.softmax_tensor, {'graph1/DecodeJpeg:0': image_data})
+		return predictions
 
 # Natural human sorting
 def atoi(text):
@@ -98,20 +114,25 @@ def sliding_window(image, stepSize, windowSize):
 		for x in xrange(0, image.shape[1], stepSize):
 			yield(x, y, image[y:y+windowSize[1], x:x+windowSize[0]])
 
-def create_heatmap(image, stepSize, windowSize):
+def create_heatmap(image, stepSize, windowSize, model_path):
 
 	heatmap = np.zeros((image.shape[0], image.shape[1], 6))
 	countmap = np.zeros((image.shape[0], image.shape[1]))
 
+	model = Model(model_path)
+
 	for y in range(0, image.shape[0], stepSize):
 		for x in range(0, image.shape[1], stepSize):
 			window = image[y:y+windowSize[1], x:x+windowSize[0]]
-			if window.shape[0] != windowSize[0] or \
-							window.shape[1] != windowSize[1]:
+			if window.shape[1] != windowSize[0] or \
+							window.shape[0] != windowSize[1]:
 				continue
 
-			cv2.imwrite('window.jpeg', window)
-			predictions = label_image('window.jpeg')
+			# cv2.imwrite('window.jpeg', window)
+			# predictions = label_image('window.jpeg')
+			# predictions = model.predict('window.jpeg')
+			window = np.array(window)
+			predictions = model.predict(window)
 
 			# print check
 			# # show steps
@@ -124,7 +145,7 @@ def create_heatmap(image, stepSize, windowSize):
 			# # cv2.destroyAllWindows()
 			# raw_input("Press Enter to continue")
 
-			os.remove('window.jpeg')
+			# os.remove('window.jpeg')
 
 			for n in range(windowSize[1]):
 				for m in range(windowSize[0]):
@@ -135,14 +156,14 @@ def create_heatmap(image, stepSize, windowSize):
 
 	return heatmap, countmap
 
-def visualise_heatmap(imgpath):
-	window_x = 100
-	window_y = 100
+def visualise_heatmap(imgpath, model_path):
+	window_x = 90
+	window_y = 120
 	stepSize = 20
 	print imgpath
 	img = cv2.imread(imgpath)
 
-	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y))
+	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model_path)
 
 	# heatmap = heatmap / np.linalg.norm(heatmap)
 
@@ -154,25 +175,21 @@ def visualise_heatmap(imgpath):
 
 	print "at heatmap creation"
 
-	ax = sns.heatmap(pawnmap)
+	ax = sns.heatmap(pawnmap, cbar = False)
 	plt.axis('off')
-	plt.savefig(imgpath[18:39]+".png", bbox_inches='tight')
+	plt.savefig(imgpath[18:39]+"_20_90120.png", bbox_inches='tight')
 	#plt.show()
 
 # while result == "":
 
 	# colour_img, img_with_matches, img_with_homography, points = chessboard_homography()
 
-with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
-	graph_def = tf.GraphDef()
-	graph_def.ParseFromString(f.read())
-	_ = tf.import_graph_def(graph_def, name='graph1')
-
 #imgpath = 'kinect_images/top_down/start/front_black/camera_image1.jpeg'
+model_path = "retrained_graph.pb"
 
-imgpaths = glob.glob("kinect_images/use/top_angle_front_black.jpeg")
+imgpaths = glob.glob("kinect_images/use/top_angle_front_white.jpeg")
 for path in imgpaths:
-	visualise_heatmap(path)
+	visualise_heatmap(path, model_path)
 
 
 # print img.shape
