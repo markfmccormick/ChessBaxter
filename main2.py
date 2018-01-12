@@ -127,7 +127,7 @@ def visualise_heatmap(imgpath, model_path):
 
 	ax = sns.heatmap(pawnmap, cbar = False)
 	plt.axis('off')
-	plt.savefig(imgpath[18:-4]+"map.png", bbox_inches='tight')
+	plt.savefig(imgpath[:-5]+"-map.png", bbox_inches='tight')
 	#plt.show()
 
 # while result == "":
