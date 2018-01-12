@@ -13,20 +13,19 @@ objp[:,:2] = np.mgrid[0:7,0:6].T.reshape(-1,2)
 objpoints = [] # 3d point in real world space
 imgpoints = [] # 2d points in image plane.
 
-images = glob.glob('test-detect-contrast.jpeg')
+images = glob.glob('kinect_images_new/white_front/middle.jpeg')
 for fname in images:
 
     img = cv2.imread(fname)
+    img = cv2.resize(img, (0,0), fx = 0.5, fy = 0.5)
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
-
-    # gray = gray[:][:850]
     # print gray.shape
     # cv2.imshow('img',gray)
     # cv2.waitKey()
 
     # Find the chess board corners
-    ret, corners = cv2.findChessboardCorners(gray, (3,3), None)
+    ret, corners = cv2.findChessboardCorners(gray, (7,4), None)
 
     print ret
     # If found, add object points, image points (after refining them)
@@ -38,8 +37,9 @@ for fname in images:
         # print corners2
 
         # Draw and display the corners
-        img = cv2.drawChessboardCorners(img, (7,6), corners2,ret)
+        img = cv2.drawChessboardCorners(img, (7,4), corners2,ret)
         cv2.imshow('img',img)
+        cv2.imwrite('kinect_images_new/marked_corners.jpeg', img)
         cv2.waitKey()
 
 cv2.destroyAllWindows()

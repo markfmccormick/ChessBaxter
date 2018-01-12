@@ -4,8 +4,15 @@ mpl.use('GTKAgg')
 import glob
 import re
 import time
+import os
+import sys
 
 import tensorflow as tf
+import cv2
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+
 from final_sliding_window import final_sliding_window
 from label_colour import label_colour
 from label_image import label_image
@@ -13,14 +20,6 @@ from label_image import label_image
 from chess_move import my_next_move
 from chessboard_detector import chessboard_homography
 from label_square import label_square
-
-import cv2
-import numpy as np
-import os, sys
-import seaborn as sns
-# import matplotlib as mpl
-# mpl.use('GTKAgg')
-import matplotlib.pyplot as plt
 
 class Model(object):
 
@@ -51,42 +50,6 @@ pieces = ["rook","knight","bishop","queen","king","pawn"]
 
 returned_state_of_the_board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
 result = ""
-
-def label_image(image_path):
-
-	# Read in the image_data
-	image_data = tf.gfile.FastGFile(image_path, 'rb').read()
-	# image_data = image_path
-
-	# Loads label file, strips off carriage return
-	label_lines = [line.rstrip() for line
-				   in tf.gfile.GFile("retrained_labels.txt")]
-
-	with tf.Session() as sess:
-
-		# Feed the image_data as input to the graph and get first prediction
-		softmax_tensor = sess.graph.get_tensor_by_name('graph1/final_result:0')
-
-		predictions = sess.run(softmax_tensor, \
-							   {'graph1/DecodeJpeg/contents:0': image_data})
-	#
-	# 	# Sort to show labels of first prediction in order of confidence
-	# 	top_k = predictions[0].argsort()[-len(predictions[0]):][::-1]
-	#
-	# 	boo = True
-	# 	# print "\n"
-	# 	for node_id in top_k:
-	# 		human_string = label_lines[node_id]
-	# 		score = predictions[0][node_id]
-	# 		# print('%s (score = %.5f)' % (human_string, score))
-	# 		if boo:
-	# 			prediction = human_string
-	# 			prediction_score = score
-	# 			boo = False
-	#
-	# return prediction, prediction_score
-
-	return predictions
 
 def print_prediction(predictions):
 	label_lines = [line.rstrip() for line
@@ -134,19 +97,6 @@ def create_heatmap(image, stepSize, windowSize, model_path):
 			window = np.array(window)
 			predictions = model.predict(window)
 
-			# print check
-			# # show steps
-			# print x,y
-			# print print_prediction(predictions)
-			# # windowimg = cv2.imread('window.jpeg')
-			# # check = cv2.imshow('Window', windowimg)
-			# # print check
-			# # raw_input("Press Enter to continue....")
-			# # cv2.destroyAllWindows()
-			# raw_input("Press Enter to continue")
-
-			# os.remove('window.jpeg')
-
 			for n in range(windowSize[1]):
 				for m in range(windowSize[0]):
 					heatmap[y+n][x+m] += predictions[0]
@@ -177,7 +127,7 @@ def visualise_heatmap(imgpath, model_path):
 
 	ax = sns.heatmap(pawnmap, cbar = False)
 	plt.axis('off')
-	plt.savefig(imgpath[18:39]+"_20_90120.png", bbox_inches='tight')
+	plt.savefig(imgpath[18:-4]+"map.png", bbox_inches='tight')
 	#plt.show()
 
 # while result == "":
@@ -187,7 +137,7 @@ def visualise_heatmap(imgpath, model_path):
 #imgpath = 'kinect_images/top_down/start/front_black/camera_image1.jpeg'
 model_path = "retrained_graph.pb"
 
-imgpaths = glob.glob("kinect_images/use/top_angle_front_white.jpeg")
+imgpaths = glob.glob("kinect_images_new/*_front/*.jpeg")
 for path in imgpaths:
 	visualise_heatmap(path, model_path)
 

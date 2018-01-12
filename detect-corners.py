@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-filename = 'my_chessboard.png'
+filename = 'kinect_images_new/camera_image89.jpeg'
 img = cv2.imread(filename)
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
