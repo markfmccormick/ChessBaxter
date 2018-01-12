@@ -1,5 +1,5 @@
 import matplotlib as mpl
-mpl.use('GTKAgg')
+# mpl.use('GTKAgg')
 
 import glob
 import re
@@ -132,7 +132,7 @@ def visualise_heatmap(imgpath, model_path):
 
 # while result == "":
 
-	# colour_img, img_with_matches, img_with_homography, points = chessboard_homography()
+colour_img, img_with_matches, img_with_homography, points = chessboard_homography()
 
 #imgpath = 'kinect_images/top_down/start/front_black/camera_image1.jpeg'
 model_path = "retrained_graph.pb"

@@ -25,19 +25,30 @@ for fname in images:
     # cv2.waitKey()
 
     # Find the chess board corners
-    ret, corners = cv2.findChessboardCorners(gray, (7,4), None)
+    x_len = 6
+    y_len = 7
+    ret, corners = cv2.findChessboardCorners(gray, (x_len, y_len), None)
+    while not ret and x_len > 2:
+        while not ret and y_len > 2:
+            ret, corners = cv2.findChessboardCorners(gray, (x_len, y_len), None)
+            y_len -= 1
+        y_len = 7
+        x_len -= 1
 
-    print ret
+
+    # ret, corners = cv2.findChessboardCorners(gray, (x_len, y_len), None)
+
+    print ret, x_len, y_len
     # If found, add object points, image points (after refining them)
     if ret == True:
         objpoints.append(objp)
 
         corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
         imgpoints.append(corners2)
-        # print corners2
+        print corners2
 
         # Draw and display the corners
-        img = cv2.drawChessboardCorners(img, (7,4), corners2,ret)
+        img = cv2.drawChessboardCorners(img, (x_len, y_len), corners2,ret)
         cv2.imshow('img',img)
         cv2.imwrite('kinect_images_new/marked_corners.jpeg', img)
         cv2.waitKey()
