@@ -3,7 +3,7 @@ import cv2
 # from matplotlib import pyplot as plt
 import glob
 import time
-import rospy
+# import rospy
 import re
 
 
