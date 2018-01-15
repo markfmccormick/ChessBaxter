@@ -1,5 +1,5 @@
 import matplotlib as mpl
-# mpl.use('GTKAgg')
+mpl.use('GTKAgg')
 
 import glob
 import re
@@ -9,6 +9,7 @@ import sys
 
 import tensorflow as tf
 import cv2
+print cv2.__version__
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
