@@ -20,20 +20,22 @@ for fname in images:
     img = cv2.resize(img, (0,0), fx = 0.5, fy = 0.5)
     gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
+    gray = cv2.equalizeHist(gray)
+
     # print gray.shape
     # cv2.imshow('img',gray)
     # cv2.waitKey()
 
     # Find the chess board corners
-    x_len = 6
-    y_len = 7
+    x_len = 3
+    y_len = 5
     ret, corners = cv2.findChessboardCorners(gray, (x_len, y_len), None)
-    while not ret and x_len > 2:
-        while not ret and y_len > 2:
-            ret, corners = cv2.findChessboardCorners(gray, (x_len, y_len), None)
-            y_len -= 1
-        y_len = 7
-        x_len -= 1
+    # while not ret and x_len > 2:
+    #     while not ret and y_len > 2:
+    #         ret, corners = cv2.findChessboardCorners(gray, (x_len, y_len), None)
+    #         y_len -= 1
+    #     y_len = 7
+    #     x_len -= 1
 
 
     # ret, corners = cv2.findChessboardCorners(gray, (x_len, y_len), None)
@@ -45,7 +47,7 @@ for fname in images:
 
         corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
         imgpoints.append(corners2)
-        print corners2
+        # print corners2
 
         # Draw and display the corners
         img = cv2.drawChessboardCorners(img, (x_len, y_len), corners2,ret)
