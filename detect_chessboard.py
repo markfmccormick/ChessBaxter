@@ -1,58 +1,71 @@
 import numpy as np
 import cv2
-import glob
+from matplotlib import pyplot as plt
 
-# termination criteria
-criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-
-# prepare object points, like (0,0,0), (1,0,0), (2,0,0) ....,(6,5,0)
-objp = np.zeros((6*7,3), np.float32)
-objp[:,:2] = np.mgrid[0:7,0:6].T.reshape(-1,2)
-
-# Arrays to store object points and image points from all the images.
-objpoints = [] # 3d point in real world space
-imgpoints = [] # 2d points in image plane.
-
-images = glob.glob('kinect_images_new/white_front/middle.jpeg')
-for fname in images:
-
-    img = cv2.imread(fname)
-    img = cv2.resize(img, (0,0), fx = 0.5, fy = 0.5)
-    gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-
-    gray = cv2.equalizeHist(gray)
-
-    # print gray.shape
-    # cv2.imshow('img',gray)
-    # cv2.waitKey()
-
-    # Find the chess board corners
-    x_len = 3
-    y_len = 5
-    ret, corners = cv2.findChessboardCorners(gray, (x_len, y_len), None)
-    # while not ret and x_len > 2:
-    #     while not ret and y_len > 2:
-    #         ret, corners = cv2.findChessboardCorners(gray, (x_len, y_len), None)
-    #         y_len -= 1
-    #     y_len = 7
-    #     x_len -= 1
+#Code based on this tutorial: https://docs.opencv.org/3.3.0/d1/de0/tutorial_py_feature_homography.html
 
 
-    # ret, corners = cv2.findChessboardCorners(gray, (x_len, y_len), None)
+MIN_MATCH_COUNT = 10
 
-    print ret, x_len, y_len
-    # If found, add object points, image points (after refining them)
-    if ret == True:
-        objpoints.append(objp)
+img1 = cv2.imread('kinect_images_new/new_chessboard.png',0)          # queryImage
+# img1 = cv2.resize(img1, (0,0), fx = 0.5, fy = 0.5)
+img2 = cv2.imread('kinect_images_new/camera_image89.jpeg',0)         # trainImage
+img2 = cv2.imread('kinect_images_new/black_front/middle.jpeg',0)
+# img2 = cv2.resize(img2, (0,0), fx = 0.5, fy = 0.5)
 
-        corners2 = cv2.cornerSubPix(gray,corners,(11,11),(-1,-1),criteria)
-        imgpoints.append(corners2)
-        # print corners2
+# Initiate SIFT detector
+sift = cv2.xfeatures2d.SIFT_create()
 
-        # Draw and display the corners
-        img = cv2.drawChessboardCorners(img, (x_len, y_len), corners2,ret)
-        cv2.imshow('img',img)
-        cv2.imwrite('kinect_images_new/marked_corners.jpeg', img)
-        cv2.waitKey()
+# Use SIFT to find the keypoints and descriptors
+kp1, des1 = sift.detectAndCompute(img1,None)
+kp2, des2 = sift.detectAndCompute(img2,None)
 
-cv2.destroyAllWindows()
+FLANN_INDEX_KDTREE = 1
+index_params = dict(algorithm = FLANN_INDEX_KDTREE, trees = 5)
+search_params = dict(checks = 50)
+
+flann = cv2.FlannBasedMatcher(index_params, search_params)
+
+matches = flann.knnMatch(des1,des2,k=2)
+
+# store all the good matches as per Lowe's ratio test.
+good = []
+for m,n in matches:
+    if m.distance < 0.7*n.distance:
+        good.append(m)
+
+
+# Check if enough matches were found to detect the chessboard
+if len(good)>MIN_MATCH_COUNT:
+    src_pts = np.float32([ kp1[m.queryIdx].pt for m in good ]).reshape(-1,1,2)
+    dst_pts = np.float32([ kp2[m.trainIdx].pt for m in good ]).reshape(-1,1,2)
+
+    # Increased ransacReprojThreshold from 5.0 to 10.0, improved results with test images
+    M, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC,10.0)
+    matchesMask = mask.ravel().tolist()
+
+    h,w = img1.shape
+    pts = np.float32([ [0,0],[0,h-1],[w-1,h-1],[w-1,0] ]).reshape(-1,1,2)
+    dst = cv2.perspectiveTransform(pts,M)
+
+    img2 = cv2.polylines(img2,[np.int32(dst)],True,255,3, cv2.LINE_AA)
+
+else:
+    print( "Not enough matches are found - {}/{}".format(len(good), MIN_MATCH_COUNT) )
+    matchesMask = None
+
+# Draw images if successful
+
+draw_params = dict(matchColor = (0,255,0), # draw matches in green color
+                   singlePointColor = None,
+                   matchesMask = matchesMask, # draw only inliers
+                   flags = 2)
+
+print src_pts.shape, dst_pts.shape
+print mask.shape
+print M
+print dst
+
+img3 = cv2.drawMatches(img1,kp1,img2,kp2,good,None,**draw_params)
+
+plt.imshow(img3, 'gray'),plt.show()
