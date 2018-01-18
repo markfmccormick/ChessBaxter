@@ -75,5 +75,7 @@ with open('chessboard_keypoints.txt') as chessboard_keypoints:
 
 print pts.shape
 print pts
+print dst.shape
+print dst
 print np.shape(keypoints)
 print keypoints
