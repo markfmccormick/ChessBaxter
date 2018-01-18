@@ -61,11 +61,17 @@ draw_params = dict(matchColor = (0,255,0), # draw matches in green color
                    matchesMask = matchesMask, # draw only inliers
                    flags = 2)
 
-print src_pts.shape, dst_pts.shape
-print mask.shape
-print M
-print dst
-
 img3 = cv2.drawMatches(img1,kp1,img2,kp2,good,None,**draw_params)
 
 plt.imshow(img3, 'gray'),plt.show()
+
+keypoints = []
+
+with open('chessboard_keypoints.txt') as chessboard_keypoints:
+    for line in chessboard_keypoints:
+        line = line.split(',')
+        keypoints.append([line[0], line[1]])
+
+print pts.shape
+print keypoints.shape
+print keypoints
