@@ -73,5 +73,5 @@ with open('chessboard_keypoints.txt') as chessboard_keypoints:
         keypoints.append([line[0], line[1]])
 
 print pts.shape
-print keypoints.shape
+print np.shape(keypoints)
 print keypoints
