@@ -69,9 +69,11 @@ keypoints = []
 
 with open('chessboard_keypoints.txt') as chessboard_keypoints:
     for line in chessboard_keypoints:
+        line = line.strip('\n')
         line = line.split(',')
         keypoints.append([line[0], line[1]])
 
 print pts.shape
+print pts
 print np.shape(keypoints)
 print keypoints
