@@ -21,7 +21,7 @@ def display_detection(dst, img1, img2, matchesMask, keypoints, new_keypoints, kp
 #Based on the code in this tutorial: https://docs.opencv.org/3.3.0/d1/de0/tutorial_py_feature_homography.html
 def get_keypoints(imgpath):
 
-    show_detection = True
+    show_detection = False
 
     MIN_MATCH_COUNT = 10
 

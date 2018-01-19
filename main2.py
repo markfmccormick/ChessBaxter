@@ -108,59 +108,64 @@ def create_heatmap(image, stepSize, windowSize, model_path):
 
 	return heatmap, countmap
 
-def visualise_heatmap(imgpath, model_path):
-	window_x = 90
-	window_y = 120
-	stepSize = 20
-	print imgpath
-	img = cv2.imread(imgpath)
-
-	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model_path)
-
-	# heatmap = heatmap / np.linalg.norm(heatmap)
-
+def visualise_heatmap(img, heatmap, countmap):
 	pawnmap = np.zeros((img.shape[0], img.shape[1]))
 
 	for x in range(pawnmap.shape[0]):
 		for y in range(pawnmap.shape[1]):
 			pawnmap[x][y] = heatmap[x][y][2]
 
-	print "at heatmap creation"
+	print "Creating heatmap"
 
 	ax = sns.heatmap(pawnmap, cbar = False)
 	plt.axis('off')
 	plt.savefig(imgpath[:-5]+"-map.png", bbox_inches='tight')
-	#plt.show()
+	plt.show()
 
-# while result == "":
+def crop_image(points, img):
+    # TODO
+	# Investigate exact values for these margins later
+	left = points[0][0]-20
+	right = points[81][0]+20
+	top = points[0][1]-100
+	bottom = points[81][1]+20
 
-# colour_img, img_with_matches, img_with_homography, points = chessboard_homography()
-imgpath = "kinect_images_new/white_front/middle.jpeg"
-chessboard_keypoints = get_keypoints(imgpath)
+	return img[left:right][top:bottom]
 
-#imgpath = 'kinect_images/top_down/start/front_black/camera_image1.jpeg'
+def create_chess_squares_points(chessboard_keypoints):
+	keypoints = chessboard_keypoints.reshape(9,9,2)
+	positions = []
+	for y in range(8):
+		for x in range(8):
+			square = [[],[]]
+			square[0].append(keypoints[y][x])
+			square[0].append(keypoints[y][x+1])
+			square[1].append(keypoints[y+1][x])
+			square[1].append(keypoints[y+1][x+1])
+			positions.append(square)
+	return np.array(positions, dtype="float32")
+
+def create_chess_squares(chess_square_points, heatmap, countmap):
+	print heatmap.shape, countmap.shape
+
 model_path = "retrained_graph.pb"
 
-imgpaths = glob.glob("kinect_images_new/*_front/*.jpeg")
-# for path in imgpaths:
-# 	visualise_heatmap(path, model_path)
+imgpath = "kinect_images_new/white_front/middle.jpeg"
+chessboard_keypoints = get_keypoints(imgpath)[0]
 
+chess_square_points = create_chess_square_points(chessboard_keypoints)
 
-# print img.shape
-# windows = sliding_window(img, step_size, (window_x,window_y))
-# count = 0
-# for (x,y,window) in windows:
-# 	count += 1
-# 	print count
-# 	print "x: " + str(x)
-# 	print "y: " + str(y)
-# 	if window.shape[0] != window_x or window.shape[1] != window_y:
-# 		continue
-# 	cv2.imwrite('sliding_window_test/image'+str(count)+'.jpeg', window)
+img = cv2.imread(imgpath, 0)
+img = crop_image(chessboard_keypoints, img)
 
+window_x = 90
+window_y = 120
+stepSize = 25
+heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model_path)
 
-# 	# Unpersists graph from file for chess piece
-# 	with tf.gfile.FastGFile("retrained_graph.pb", 'rb') as f:
-# 		graph_def = tf.GraphDef()
-# 		graph_def.ParseFromString(f.read())
-# 		_ = tf.import_graph_def(graph_def, name='graph1')
+chess_squares = create_chess_squares(chess_square_points, heatmap, countmap)
+# visualise_heatmap(img, heatmap, countmap)
+
+# imgpaths = glob.glob("kinect_images_new/*_front/*.jpeg")
+# # for path in imgpaths:
+# # 	visualise_heatmap(path, model_path)

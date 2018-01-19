@@ -1,19 +1,25 @@
 import numpy as np
-import cv2
-from matplotlib import pyplot as plt
 
-img = cv2.imread('kinect_images_new/new_chessboard.png',0)
+def create_chesssquares(keypoints):
+    keypoints = keypoints.reshape(9,9,2)
+    positions = []
+    for y in range(8):
+        for x in range(8):
+            square = [[],[]]
+            square[0].append(keypoints[y][x])
+            square[0].append(keypoints[y][x+1])
+            square[1].append(keypoints[y+1][x])
+            square[1].append(keypoints[y+1][x+1])
+            positions.append(square)
+    return np.array(positions, dtype="float32")
 
 keypoints = [[]]
-
 with open('chessboard_keypoints.txt') as chessboard_keypoints:
     for line in chessboard_keypoints:
         line = line.strip('\n')
         line = line.split(',')
         keypoints[0].append([line[0], line[1]])
 
-for point in keypoints[0]:
-    cv2.circle(img, (int(point[0]),int(point[1])), 5, (255,0,0), -1)
+keypoints = np.array(keypoints, dtype="float32")
 
-cv2.imshow("test", img)
-cv2.waitKey(0)
+board = create_chesssquares(keypoints)
