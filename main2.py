@@ -13,13 +13,15 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+# legacy imports to be removed or fixed
 from final_sliding_window import final_sliding_window
 from label_colour import label_colour
 from label_image import label_image
-
 from chess_move import my_next_move
 from chessboard_detector import chessboard_homography
 from label_square import label_square
+
+from detect_chessboard import get_keypoints
 
 class Model(object):
 
@@ -132,14 +134,16 @@ def visualise_heatmap(imgpath, model_path):
 
 # while result == "":
 
-colour_img, img_with_matches, img_with_homography, points = chessboard_homography()
+# colour_img, img_with_matches, img_with_homography, points = chessboard_homography()
+imgpath = "kinect_images_new/white_front/middle.jpeg"
+chessboard_keypoints = get_keypoints(imgpath)
 
 #imgpath = 'kinect_images/top_down/start/front_black/camera_image1.jpeg'
 model_path = "retrained_graph.pb"
 
 imgpaths = glob.glob("kinect_images_new/*_front/*.jpeg")
-for path in imgpaths:
-	visualise_heatmap(path, model_path)
+# for path in imgpaths:
+# 	visualise_heatmap(path, model_path)
 
 
 # print img.shape
