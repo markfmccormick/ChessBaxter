@@ -74,9 +74,12 @@ with open('chessboard_keypoints.txt') as chessboard_keypoints:
         keypoints[0].append([line[0], line[1]])
 
 for point in keypoints[0]:
-    cv2.circle(img1,(point[0],point[1]),2,(0,255,0))
+    print point
 
-cv2.imshow("Original", img1)
+# for point in keypoints[0]:
+#     cv2.circle(img1,(point[0],point[1]),2,(0,255,0))
+#
+# cv2.imshow("Original", img1)
 
 print pts.shape
 print pts
