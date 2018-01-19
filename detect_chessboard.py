@@ -9,8 +9,8 @@ MIN_MATCH_COUNT = 10
 
 img1 = cv2.imread('kinect_images_new/new_chessboard.png',0)          # queryImage
 # img1 = cv2.resize(img1, (0,0), fx = 0.5, fy = 0.5)
-img2 = cv2.imread('kinect_images_new/camera_image89.jpeg',0)         # trainImage
-img2 = cv2.imread('kinect_images_new/black_front/middle.jpeg',0)
+img2 = cv2.imread('kinect_images_new/black_front/middle.jpeg',0)     # trainImage
+img_test = cv2.imread('kinect_images_new/black_front/middle.jpeg',0)
 # img2 = cv2.resize(img2, (0,0), fx = 0.5, fy = 0.5)
 
 # Initiate SIFT detector
@@ -73,17 +73,10 @@ with open('chessboard_keypoints.txt') as chessboard_keypoints:
         line = line.split(',')
         keypoints[0].append([line[0], line[1]])
 
-for point in keypoints[0]:
-    print point
+new_keypoints = cv2.perspectiveTransform(keypoints, M)
 
-# for point in keypoints[0]:
-#     cv2.circle(img1,(point[0],point[1]),2,(0,255,0))
-#
-# cv2.imshow("Original", img1)
+for point in new_keypoints[0]:
+    cv2.circle(img_test, (int(point[0]),int(point[1])), 5, (255,0,0), -1)
 
-print pts.shape
-print pts
-print dst.shape
-print dst
-print np.shape(keypoints)
-print keypoints
+cv2.imshow("test", img_test)
+cv2.waitKey(0)
