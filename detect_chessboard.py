@@ -73,6 +73,8 @@ with open('chessboard_keypoints.txt') as chessboard_keypoints:
         line = line.split(',')
         keypoints[0].append([line[0], line[1]])
 
+keypoints = np.array(keypoints, dtype="float32")
+
 new_keypoints = cv2.perspectiveTransform(keypoints, M)
 
 for point in new_keypoints[0]:
