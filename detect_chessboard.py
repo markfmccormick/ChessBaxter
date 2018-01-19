@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
-def display_detection(img1, img2, matchesMask, keypoints, new_keypoints, kp1, kp2, good):
+def display_detection(dst, img1, img2, matchesMask, keypoints, new_keypoints, kp1, kp2, good):
     img2 = cv2.polylines(img2,[np.int32(dst)],True,255,3, cv2.LINE_AA)
     draw_params = dict(matchColor = (0,255,0), # draw matches in green color
                        singlePointColor = None,
@@ -77,6 +77,6 @@ def get_keypoints(imgpath):
     new_keypoints = cv2.perspectiveTransform(keypoints, M)
 
     if show_detection:
-        display_detection(img1, img2, matchesMask, keypoints, new_keypoints, kp1, kp2, good)
+        display_detection(dst, img1, img2, matchesMask, keypoints, new_keypoints, kp1, kp2, good)
 
     return new_keypoints
