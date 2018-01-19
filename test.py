@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
-img1 = cv2.imread('kinect_images_new/new_chessboard.png',0)
+img = cv2.imread('kinect_images_new/new_chessboard.png',0)
 
 keypoints = [[]]
 
@@ -13,6 +13,7 @@ with open('chessboard_keypoints.txt') as chessboard_keypoints:
         keypoints[0].append([line[0], line[1]])
 
 for point in keypoints[0]:
-    cv2.circle(img1, (int(point[0]),int(point[1])), 2, (255,0,0), -1)
+    cv2.circle(img, (int(point[0]),int(point[1])), 2, (255,0,0), -1)
 
-plt.imshow(img1, 'test'),plt.show()
+cv2.imshow("test", img)
+cv2.waitKey(0)
