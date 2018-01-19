@@ -15,4 +15,4 @@ with open('chessboard_keypoints.txt') as chessboard_keypoints:
 for point in keypoints[0]:
     cv2.circle(img1, (int(point[0]),int(point[1])), 2, (255,0,0), -1)
 
-cv2.imshow("Test", img1)
+plt.imshow(img1, 'test'),plt.show()
