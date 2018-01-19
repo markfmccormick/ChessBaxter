@@ -65,13 +65,18 @@ img3 = cv2.drawMatches(img1,kp1,img2,kp2,good,None,**draw_params)
 
 plt.imshow(img3, 'gray'),plt.show()
 
-keypoints = []
+keypoints = [[]]
 
 with open('chessboard_keypoints.txt') as chessboard_keypoints:
     for line in chessboard_keypoints:
         line = line.strip('\n')
         line = line.split(',')
-        keypoints.append([line[0], line[1]])
+        keypoints[0].append([line[0], line[1]])
+
+for point in keypoints[0]:
+    cv2.circle(img1,(point[0],point[1]),2,(0,255,0))
+
+cv2.imshow("Original", img1)
 
 print pts.shape
 print pts
