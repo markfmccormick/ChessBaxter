@@ -72,13 +72,6 @@ def print_prediction(predictions):
 
 	return prediction, prediction_score
 
-
-def sliding_window(image, stepSize, windowSize):
-	# slide window across the image
-    for y in xrange(0, image.shape[0], stepSize):
-		for x in xrange(0, image.shape[1], stepSize):
-			yield(x, y, image[y:y+windowSize[1], x:x+windowSize[0]])
-
 def create_heatmap(image, stepSize, windowSize, model_path):
 
 	heatmap = np.zeros((image.shape[0], image.shape[1], 6))
@@ -93,9 +86,6 @@ def create_heatmap(image, stepSize, windowSize, model_path):
 							window.shape[0] != windowSize[1]:
 				continue
 
-			# cv2.imwrite('window.jpeg', window)
-			# predictions = label_image('window.jpeg')
-			# predictions = model.predict('window.jpeg')
 			window = np.array(window)
 			predictions = model.predict(window)
 
@@ -103,8 +93,6 @@ def create_heatmap(image, stepSize, windowSize, model_path):
 				for m in range(windowSize[0]):
 					heatmap[y+n][x+m] += predictions[0]
 					countmap[y+n][x+m] += 1
-
-			# sys.exit()
 
 	return heatmap, countmap
 
@@ -150,8 +138,8 @@ def create_chess_squares(chess_square_points, heatmap, countmap):
 	squares = []
 	squares_count = []
 	for points in chess_square_points:
-		square = heatmap[points[1][0][0]:points[1][1][0], points[0][0][1]:points[1][1][1]]
-		square_count = countmap[points[1][0][0]:points[1][1][0], points[0][0][1]:points[1][1][1]]
+		square = heatmap[int(points[1][0][0]):int(points[1][1][0]), int(points[0][0][1]):int(points[1][1][1])]
+		square_count = countmap[int(points[1][0][0]):int(points[1][1][0]), int(points[0][0][1]):int(points[1][1][1])]
 		squares.append(square)
 		squares_count.append(square_count)
 	return squares, squares_count
@@ -165,10 +153,6 @@ chess_square_points = create_chess_square_points(chessboard_keypoints)
 
 img = cv2.imread(imgpath)
 img = crop_image(chessboard_keypoints, img)
-print np.shape(img)
-
-cv2.imshow("Cropped Image", img)
-cv2.waitKey(0)
 
 window_y = 120
 window_x = 90
