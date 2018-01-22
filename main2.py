@@ -125,14 +125,14 @@ def visualise_heatmap(img, heatmap, countmap):
 def crop_image(points, img):
     # TODO
 	# Investigate exact values for these margins later
-	left = points[0][0]-20
-	right = points[81][0]+20
-	top = points[0][1]-100
-	bottom = points[81][1]+20
+	left = int(points[0][0]-20)
+	right = int(points[80][0]+20)
+	top = int(points[0][1]-100)
+	bottom = int(points[80][1]+20)
 
 	return img[left:right][top:bottom]
 
-def create_chess_squares_points(chessboard_keypoints):
+def create_chess_square_points(chessboard_keypoints):
 	keypoints = chessboard_keypoints.reshape(9,9,2)
 	positions = []
 	for y in range(8):
@@ -158,13 +158,13 @@ chess_square_points = create_chess_square_points(chessboard_keypoints)
 img = cv2.imread(imgpath, 0)
 img = crop_image(chessboard_keypoints, img)
 
-window_x = 90
-window_y = 120
+window_y = 100
+window_x = 100
 stepSize = 25
 heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model_path)
 
 chess_squares = create_chess_squares(chess_square_points, heatmap, countmap)
-# visualise_heatmap(img, heatmap, countmap)
+visualise_heatmap(img, heatmap, countmap)
 
 # imgpaths = glob.glob("kinect_images_new/*_front/*.jpeg")
 # # for path in imgpaths:
