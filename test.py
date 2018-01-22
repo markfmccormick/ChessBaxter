@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 
 def create_chesssquares(keypoints):
     keypoints = keypoints.reshape(9,9,2)
@@ -23,3 +24,7 @@ with open('chessboard_keypoints.txt') as chessboard_keypoints:
 keypoints = np.array(keypoints, dtype="float32")
 
 board = create_chesssquares(keypoints)
+
+imgpath = "kinect_images_new/white_front/middle.jpeg"
+img = cv2.imread(imgpath)
+print np.shape(img)

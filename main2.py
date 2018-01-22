@@ -108,7 +108,7 @@ def create_heatmap(image, stepSize, windowSize, model_path):
 
 	return heatmap, countmap
 
-def visualise_heatmap(img, heatmap, countmap):
+def visualise_heatmap(img, heatmap, countmap, savefig):
 	pawnmap = np.zeros((img.shape[0], img.shape[1]))
 
 	for x in range(pawnmap.shape[0]):
@@ -119,7 +119,8 @@ def visualise_heatmap(img, heatmap, countmap):
 
 	ax = sns.heatmap(pawnmap, cbar = False)
 	plt.axis('off')
-	plt.savefig(imgpath[:-5]+"-map.png", bbox_inches='tight')
+	if savefig:
+		plt.savefig(imgpath[:-5]+"-map.png", bbox_inches='tight')
 	plt.show()
 
 def crop_image(points, img):
@@ -146,7 +147,14 @@ def create_chess_square_points(chessboard_keypoints):
 	return np.array(positions, dtype="float32")
 
 def create_chess_squares(chess_square_points, heatmap, countmap):
-	print heatmap.shape, countmap.shape
+	squares = []
+	squares_count = []
+	for points in chess_square_points:
+		square = heatmap[points[1][0][0]:points[1][1][0], points[0][0][1]:points[1][1][1]]
+		square_count = countmap[points[1][0][0]:points[1][1][0], points[0][0][1]:points[1][1][1]]
+		squares.append(square)
+		squares_count.append(square_count)
+	return squares, squares_count
 
 model_path = "retrained_graph.pb"
 
@@ -167,9 +175,7 @@ window_x = 90
 stepSize = 20
 heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model_path)
 
-chess_squares = create_chess_squares(chess_square_points, heatmap, countmap)
-visualise_heatmap(img, heatmap, countmap)
+chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
 
-# imgpaths = glob.glob("kinect_images_new/*_front/*.jpeg")
-# # for path in imgpaths:
-# # 	visualise_heatmap(path, model_path)
+savefig = False
+visualise_heatmap(img, heatmap, countmap, savefig)
