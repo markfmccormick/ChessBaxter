@@ -28,3 +28,7 @@ board = create_chesssquares(keypoints)
 imgpath = "kinect_images_new/white_front/middle.jpeg"
 img = cv2.imread(imgpath)
 print np.shape(img)
+
+point = [[[0,0],[1,0]],[[0,1],[1,1]]]
+print np.shape(point)
+print point[1][0][0]
