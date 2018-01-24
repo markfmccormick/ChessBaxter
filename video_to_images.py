@@ -1,12 +1,18 @@
 import cv2
+import glob
 
-video = cv2.VideoCapture('training_data/test/test.mp4')
+for filename in glob.glob('training_data/videos/*.mp4'):
 
-success,image = video.read()
-count = 0
-success = True
-while success:
+    video = cv2.VideoCapture(filename)
+    dest = filename[21:-4]
+    dest = "training_data/piece_data/" + dest
+
     success,image = video.read()
-    print("Read a new frame: ", success)
-    cv2.imwrite("training_data/test/frame%d.jpg" % count, image)
-    count +=1
+    count = 0
+    # success = True
+    while success and count < 3000:
+        success,image = video.read()
+        if count %5 == 0:
+            print "Saving frame " + str(count) + " to "+dest+'\n'
+            cv2.imwrite(dest+"/frame"+str(count)+".jpg", image)
+        count +=1

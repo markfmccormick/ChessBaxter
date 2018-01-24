@@ -74,7 +74,7 @@ def print_prediction(predictions):
 
 def create_heatmap(image, stepSize, windowSize, model_path):
 
-	heatmap = np.zeros((image.shape[0], image.shape[1], 6))
+	heatmap = np.zeros((image.shape[0], image.shape[1], 13))
 	countmap = np.zeros((image.shape[0], image.shape[1]))
 
 	model = Model(model_path)
@@ -96,20 +96,43 @@ def create_heatmap(image, stepSize, windowSize, model_path):
 
 	return heatmap, countmap
 
-def visualise_heatmap(img, heatmap, countmap, savefig):
-	pawnmap = np.zeros((img.shape[0], img.shape[1]))
+# def visualise_heatmap(img, heatmap, countmap, labels):
+# 	pawnmap = np.zeros((img.shape[0], img.shape[1]))
+#
+# 	for x in range(pawnmap.shape[0]):
+# 		for y in range(pawnmap.shape[1]):
+# 			pawnmap[x][y] = heatmap[x][y][id]
+#
+# 	print "Visualising heatmap"
+#
+# 	ax = sns.heatmap(pawnmap, cbar = False)
+# 	plt.axis('off')
+# 	if savefig:
+# 		plt.savefig(filename, bbox_inches='tight')
+# 	# plt.show()
+# 	plt.clf()
 
-	for x in range(pawnmap.shape[0]):
-		for y in range(pawnmap.shape[1]):
-			pawnmap[x][y] = heatmap[x][y][2]
+def visualise_heatmap(img, heatmap, countmap, labels_file, base_path):
+	print "Visualising heatmap"
+	labels = []
+	with open(labels_file) as image_labels:
+		for line in image_labels:
+			line = line.strip('\n')
+			line = line.replace(" ", "_")
+			labels.append(line)
 
-	print "Creating heatmap"
+	for piece in range(len(labels)):
 
-	ax = sns.heatmap(pawnmap, cbar = False)
-	plt.axis('off')
-	if savefig:
-		plt.savefig(imgpath[:-5]+"-map.png", bbox_inches='tight')
-	plt.show()
+		map = np.zeros((img.shape[0], img.shape[1]))
+		for x in range(map.shape[0]):
+			for y in range(map.shape[1]):
+				map[x][y] = heatmap[x][y][piece]
+
+		ax = sns.heatmap(map, cbar = False)
+		plt.axis('off')
+		plt.savefig(base_path+labels[piece]+".png", bbox_inches='tight')
+		# plt.show()
+		plt.clf()
 
 def crop_image(points, img):
     # TODO
@@ -144,9 +167,11 @@ def create_chess_squares(chess_square_points, heatmap, countmap):
 		squares_count.append(square_count)
 	return squares, squares_count
 
-model_path = "retrained_graph.pb"
+# model_path = "retrained_graph.pb"
+model_path = "inception3.pb"
+label_path = "inception.txt"
 
-imgpath = "kinect_images_new/white_front/middle.jpeg"
+imgpath = "kinect_images_new/black_front/middle.jpeg"
 chessboard_keypoints = get_keypoints(imgpath)[0]
 
 chess_square_points = create_chess_square_points(chessboard_keypoints)
@@ -161,5 +186,4 @@ heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model_pa
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
 
-savefig = False
-visualise_heatmap(img, heatmap, countmap, savefig)
+visualise_heatmap(img, heatmap, countmap, label_path, "heatmaps/")
