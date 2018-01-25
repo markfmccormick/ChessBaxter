@@ -172,6 +172,7 @@ model_path = "inception3.pb"
 label_path = "inception.txt"
 
 imgpath = "kinect_images_new/black_front/middle.jpeg"
+imgpath = "camera_image1.jpeg"
 chessboard_keypoints = get_keypoints(imgpath)[0]
 
 chess_square_points = create_chess_square_points(chessboard_keypoints)
