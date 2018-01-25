@@ -168,11 +168,11 @@ def create_chess_squares(chess_square_points, heatmap, countmap):
 	return squares, squares_count
 
 # model_path = "retrained_graph.pb"
-model_path = "inception3.pb"
+model_path = "inception4.pb"
 label_path = "inception.txt"
 
-imgpath = "kinect_images_new/black_front/middle.jpeg"
-imgpath = "camera_image1.jpeg"
+imgpath = "kinect_images_new/white_front/tall.jpeg"
+
 chessboard_keypoints = get_keypoints(imgpath)[0]
 
 chess_square_points = create_chess_square_points(chessboard_keypoints)
@@ -180,9 +180,9 @@ chess_square_points = create_chess_square_points(chessboard_keypoints)
 img = cv2.imread(imgpath)
 img = crop_image(chessboard_keypoints, img)
 
-window_y = 120
-window_x = 90
-stepSize = 20
+window_y = 100
+window_x = 100
+stepSize = 10
 heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model_path)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
