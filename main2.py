@@ -15,8 +15,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from detect_chessboard import get_keypoints
-from create_board_string import create_board_string
-from chess_move import my_next_move
+#from create_board_string import create_board_string
+#from chess_move import my_next_move
 
 class Model(object):
 
@@ -62,12 +62,17 @@ def create_heatmap(image, stepSize, windowSize, model_path):
 
 	model = Model(model_path)
 
+	counter = 0
+
 	for y in range(0, image.shape[0], stepSize):
 		for x in range(0, image.shape[1], stepSize):
 			window = image[y:y+windowSize[1], x:x+windowSize[0]]
 			if window.shape[1] != windowSize[0] or \
 							window.shape[0] != windowSize[1]:
 				continue
+
+			cv2.imwrite("sliding_window/"+str(counter)+".jpg", window)
+			counter+=1
 
 			window = np.array(window)
 			predictions = model.predict(window)
@@ -135,14 +140,14 @@ def label_squares(chess_squares, chess_squares_count):
 	label_strings = ["bishop", "king", "knight", "pawn", "queen", "rook",
 					"square", "BISHOP", "KING", "KNIGHT", "PAWN", "QUEEN", "ROOK"]
 	square_labels = []
-
+	print np.shape(chess_squares[1])
 	return square_labels
 
 # model_path = "retrained_graph.pb"
 model_path = "inception4.pb"
-label_path = "inception.txt"
+labels_path = "inception.txt"
 labels = []
-with open(labels_file) as image_labels:
+with open(labels_path) as image_labels:
 	for line in image_labels:
 		line = line.strip('\n')
 		line = line.replace(" ", "_")
@@ -159,16 +164,17 @@ img = crop_image(chessboard_keypoints, img)
 
 window_y = 100
 window_x = 100
-stepSize = 10
+stepSize = 30
 heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model_path)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
 square_labels = label_squares(chess_squares, chess_squares_count)
+"""
 board_state_string = create_board_string(square_labels)
 
 moved_board_state_string, game_over = my_next_move(board_state_string)
 if game_over == "":
     # Game not over
-	continue
-
+	print "Game not over"
+"""
 visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
