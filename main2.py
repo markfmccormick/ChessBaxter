@@ -1,4 +1,5 @@
 import matplotlib as mpl
+# To get mpl working over ssh, can be disabled otherwise or if causing error
 mpl.use('GTKAgg')
 
 import glob
@@ -13,15 +14,9 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# legacy imports to be removed or fixed
-from final_sliding_window import final_sliding_window
-from label_colour import label_colour
-from label_image import label_image
-from chess_move import my_next_move
-from chessboard_detector import chessboard_homography
-from label_square import label_square
-
 from detect_chessboard import get_keypoints
+from create_board_string import create_board_string
+from chess_move import my_next_move
 
 class Model(object):
 
@@ -40,18 +35,6 @@ class Model(object):
 		# predictions =  self.session.run(self.softmax_tensor, {'graph1/DecodeJpeg/contents:0': image_data})
 		predictions = self.session.run(self.softmax_tensor, {'graph1/DecodeJpeg:0': image_data})
 		return predictions
-
-# Natural human sorting
-def atoi(text):
-	return int(text) if text.isdigit() else text
-
-def natural_keys(text):
-	return [ atoi(c) for c in re.split('(\d+)', text) ]
-
-pieces = ["rook","knight","bishop","queen","king","pawn"]
-
-returned_state_of_the_board = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
-result = ""
 
 def print_prediction(predictions):
 	label_lines = [line.rstrip() for line
@@ -73,7 +56,7 @@ def print_prediction(predictions):
 	return prediction, prediction_score
 
 def create_heatmap(image, stepSize, windowSize, model_path):
-
+    # 13 dimensional because there are 13 possible classifications
 	heatmap = np.zeros((image.shape[0], image.shape[1], 13))
 	countmap = np.zeros((image.shape[0], image.shape[1]))
 
@@ -96,30 +79,8 @@ def create_heatmap(image, stepSize, windowSize, model_path):
 
 	return heatmap, countmap
 
-# def visualise_heatmap(img, heatmap, countmap, labels):
-# 	pawnmap = np.zeros((img.shape[0], img.shape[1]))
-#
-# 	for x in range(pawnmap.shape[0]):
-# 		for y in range(pawnmap.shape[1]):
-# 			pawnmap[x][y] = heatmap[x][y][id]
-#
-# 	print "Visualising heatmap"
-#
-# 	ax = sns.heatmap(pawnmap, cbar = False)
-# 	plt.axis('off')
-# 	if savefig:
-# 		plt.savefig(filename, bbox_inches='tight')
-# 	# plt.show()
-# 	plt.clf()
-
-def visualise_heatmap(img, heatmap, countmap, labels_file, base_path):
+def visualise_heatmap(img, heatmap, countmap, labels, base_path):
 	print "Visualising heatmap"
-	labels = []
-	with open(labels_file) as image_labels:
-		for line in image_labels:
-			line = line.strip('\n')
-			line = line.replace(" ", "_")
-			labels.append(line)
 
 	for piece in range(len(labels)):
 
@@ -167,11 +128,27 @@ def create_chess_squares(chess_square_points, heatmap, countmap):
 		squares_count.append(square_count)
 	return squares, squares_count
 
+# TODO
+# Lots of work and experimentation here to figure out the best way to do this
+def label_squares(chess_squares, chess_squares_count):
+    # List ordered to match labels.txt file
+	label_strings = ["bishop", "king", "knight", "pawn", "queen", "rook",
+					"square", "BISHOP", "KING", "KNIGHT", "PAWN", "QUEEN", "ROOK"]
+	square_labels = []
+
+	return square_labels
+
 # model_path = "retrained_graph.pb"
 model_path = "inception4.pb"
 label_path = "inception.txt"
+labels = []
+with open(labels_file) as image_labels:
+	for line in image_labels:
+		line = line.strip('\n')
+		line = line.replace(" ", "_")
+		labels.append(line)
 
-imgpath = "kinect_images_new/white_front/tall.jpeg"
+imgpath = "kinect_images_new/white_front/middle.jpeg"
 
 chessboard_keypoints = get_keypoints(imgpath)[0]
 
@@ -186,5 +163,12 @@ stepSize = 10
 heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model_path)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
+square_labels = label_squares(chess_squares, chess_squares_count)
+board_state_string = create_board_string(square_labels)
 
-visualise_heatmap(img, heatmap, countmap, label_path, "heatmaps/")
+moved_board_state_string, game_over = my_next_move(board_state_string)
+if game_over == "":
+    # Game not over
+	continue
+
+visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
