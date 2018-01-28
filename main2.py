@@ -62,7 +62,7 @@ def create_heatmap(image, stepSize, windowSize, model_path):
 
 	model = Model(model_path)
 
-	counter = 0
+	# counter = 0
 
 	for y in range(0, image.shape[0], stepSize):
 		for x in range(0, image.shape[1], stepSize):
@@ -71,8 +71,8 @@ def create_heatmap(image, stepSize, windowSize, model_path):
 							window.shape[0] != windowSize[1]:
 				continue
 
-			cv2.imwrite("sliding_window/"+str(counter)+".jpg", window)
-			counter+=1
+			# cv2.imwrite("sliding_window/"+str(counter)+".jpg", window)
+			# counter+=1
 
 			window = np.array(window)
 			predictions = model.predict(window)
@@ -144,8 +144,8 @@ def label_squares(chess_squares, chess_squares_count):
 	return square_labels
 
 # model_path = "retrained_graph.pb"
-model_path = "inception4.pb"
-labels_path = "inception.txt"
+model_path = "models/inception8.pb"
+labels_path = "labels.txt"
 labels = []
 with open(labels_path) as image_labels:
 	for line in image_labels:
@@ -162,9 +162,9 @@ chess_square_points = create_chess_square_points(chessboard_keypoints)
 img = cv2.imread(imgpath)
 img = crop_image(chessboard_keypoints, img)
 
-window_y = 100
-window_x = 100
-stepSize = 30
+window_y = 120
+window_x = 120
+stepSize = 20
 heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model_path)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
