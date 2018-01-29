@@ -55,10 +55,7 @@ def print_prediction(predictions):
 
 	return prediction, prediction_score
 
-def create_heatmap(image, stepSize, windowSize, model_path, heatmap, countmap):
-
-	model = Model(model_path)
-
+def create_heatmap(image, stepSize, windowSize, model, heatmap, countmap):
 	# counter = 0
 
 	for y in range(0, image.shape[0], stepSize):
@@ -161,12 +158,13 @@ img = crop_image(chessboard_keypoints, img)
 
 window_y = 80
 window_x = 80
-stepSize = 40
+stepSize = 50
 # 13 dimensional because there are 13 possible classifications
 heatmap = np.zeros((img.shape[0], img.shape[1], 13))
 countmap = np.zeros((img.shape[0], img.shape[1]))
-for x in range(0, 41, 20):
-	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model_path, heatmap, countmap)
+model = Model(model_path)
+for x in range(0, 41, 10):
+	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
 square_labels = label_squares(chess_squares, chess_squares_count)
