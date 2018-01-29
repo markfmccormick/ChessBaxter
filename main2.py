@@ -120,11 +120,14 @@ def create_chess_square_points(chessboard_keypoints):
 def create_chess_squares(chess_square_points, heatmap, countmap):
 	squares = []
 	squares_count = []
+	count = 71
 	for points in chess_square_points:
-		square = heatmap[int(points[1][0][0]):int(points[1][1][0]), int(points[0][0][1]):int(points[1][1][1])]
-		square_count = countmap[int(points[1][0][0]):int(points[1][1][0]), int(points[0][0][1]):int(points[1][1][1])]
+		offset = int(count/8)*5
+		square = heatmap[int(points[1][0][0])-offset:int(points[1][1][0]), int(points[0][0][1]):int(points[1][1][1])]
+		square_count = countmap[int(points[1][0][0])-offset:int(points[1][1][0]), int(points[0][0][1]):int(points[1][1][1])]
 		squares.append(square)
 		squares_count.append(square_count)
+		count -= 1
 	return squares, squares_count
 
 # TODO
@@ -134,8 +137,25 @@ def label_squares(chess_squares, chess_squares_count):
 	label_strings = ["bishop", "king", "knight", "pawn", "queen", "rook",
 					"square", "BISHOP", "KING", "KNIGHT", "PAWN", "QUEEN", "ROOK"]
 	square_labels = []
-	print np.shape(chess_squares[1])
+	for square in chess_squares:
+		high = square.argmax(axis=0)
+		square_labels.append(label_strings[high[2]])
 	return square_labels
+
+def label_squares_test(chess_squares, chess_squares_count, heatmap, countmap):
+	# List ordered to match labels.txt file
+	label_strings = ["bishop", "king", "knight", "pawn", "queen", "rook",
+					"square", "BISHOP", "KING", "KNIGHT", "PAWN", "QUEEN", "ROOK"]
+	king_or_queen = [1,4,8,11]
+	square_labels = []
+
+	for square in chess_squares:
+		high = square.argmax(axis=0)
+		if high[2] in king_or_queen:
+			column = 1
+
+
+	return square_labels[]
 
 # model_path = "retrained_graph.pb"
 model_path = "models/inception8.pb"
@@ -156,18 +176,19 @@ chess_square_points = create_chess_square_points(chessboard_keypoints)
 img = cv2.imread(imgpath)
 img = crop_image(chessboard_keypoints, img)
 
-window_y = 80
-window_x = 80
-stepSize = 50
+window_y = 100
+window_x = 100
+stepSize = 20
 # 13 dimensional because there are 13 possible classifications
 heatmap = np.zeros((img.shape[0], img.shape[1], 13))
 countmap = np.zeros((img.shape[0], img.shape[1]))
 model = Model(model_path)
-for x in range(0, 41, 10):
-	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
+# for x in range(0, 41, 10):
+# 	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
+heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
-square_labels = label_squares(chess_squares, chess_squares_count)
+# square_labels = label_squares(chess_squares, chess_squares_count)
 """
 board_state_string = create_board_string(square_labels)
 
