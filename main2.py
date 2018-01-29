@@ -55,10 +55,7 @@ def print_prediction(predictions):
 
 	return prediction, prediction_score
 
-def create_heatmap(image, stepSize, windowSize, model_path):
-    # 13 dimensional because there are 13 possible classifications
-	heatmap = np.zeros((image.shape[0], image.shape[1], 13))
-	countmap = np.zeros((image.shape[0], image.shape[1]))
+def create_heatmap(image, stepSize, windowSize, model_path, heatmap, countmap):
 
 	model = Model(model_path)
 
@@ -162,10 +159,14 @@ chess_square_points = create_chess_square_points(chessboard_keypoints)
 img = cv2.imread(imgpath)
 img = crop_image(chessboard_keypoints, img)
 
-window_y = 120
-window_x = 120
-stepSize = 20
-heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model_path)
+window_y = 80
+window_x = 80
+stepSize = 40
+# 13 dimensional because there are 13 possible classifications
+heatmap = np.zeros((image.shape[0], image.shape[1], 13))
+countmap = np.zeros((image.shape[0], image.shape[1]))
+for x in range(0, 41, 20):
+	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model_path, heatmap, countmap)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
 square_labels = label_squares(chess_squares, chess_squares_count)
