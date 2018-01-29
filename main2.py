@@ -163,8 +163,8 @@ window_y = 80
 window_x = 80
 stepSize = 40
 # 13 dimensional because there are 13 possible classifications
-heatmap = np.zeros((image.shape[0], image.shape[1], 13))
-countmap = np.zeros((image.shape[0], image.shape[1]))
+heatmap = np.zeros((img.shape[0], img.shape[1], 13))
+countmap = np.zeros((img.shape[0], img.shape[1]))
 for x in range(0, 41, 20):
 	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model_path, heatmap, countmap)
 
