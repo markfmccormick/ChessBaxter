@@ -155,10 +155,10 @@ def label_squares_test(chess_squares, chess_squares_count, heatmap, countmap):
 			column = 1
 
 
-	return square_labels[]
+	return square_labels
 
 # model_path = "retrained_graph.pb"
-model_path = "models/inception8.pb"
+model_path = "models/inception9.pb"
 labels_path = "labels.txt"
 labels = []
 with open(labels_path) as image_labels:
