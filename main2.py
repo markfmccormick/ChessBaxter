@@ -167,7 +167,7 @@ with open(labels_path) as image_labels:
 		line = line.replace(" ", "_")
 		labels.append(line)
 
-imgpath = "kinect_images_new/white_front/middle.jpeg"
+imgpath = "kinect_images_new/white_front/tall.jpeg"
 
 chessboard_keypoints = get_keypoints(imgpath)[0]
 
