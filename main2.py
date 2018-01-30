@@ -176,16 +176,16 @@ chess_square_points = create_chess_square_points(chessboard_keypoints)
 img = cv2.imread(imgpath)
 img = crop_image(chessboard_keypoints, img)
 
-window_y = 100
-window_x = 100
-stepSize = 20
+window_y = 80
+window_x = 80
+stepSize = 40
 # 13 dimensional because there are 13 possible classifications
 heatmap = np.zeros((img.shape[0], img.shape[1], 13))
 countmap = np.zeros((img.shape[0], img.shape[1]))
 model = Model(model_path)
-# for x in range(0, 41, 10):
-# 	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
-heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
+for x in range(0, 41, 10):
+	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
+# heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
 # square_labels = label_squares(chess_squares, chess_squares_count)
