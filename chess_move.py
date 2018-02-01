@@ -2,8 +2,6 @@ import chess
 import chess.uci
 import stockfish
 
-
-
 def my_next_move(state_of_the_chessboard):
 	# To HACK, uncomment one of the states of the chessboard
 	# state_of_the_chessboard = "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"		# Initial state

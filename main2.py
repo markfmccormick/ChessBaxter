@@ -15,8 +15,8 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 from detect_chessboard import get_keypoints
-#from create_board_string import create_board_string
-#from chess_move import my_next_move
+from create_board_string import create_board_string
+from chess_move import my_next_move
 
 class Model(object):
 
@@ -154,7 +154,6 @@ def label_squares_test(chess_squares, chess_squares_count, heatmap, countmap):
 		if high[2] in king_or_queen:
 			column = 1
 
-
 	return square_labels
 
 # model_path = "retrained_graph.pb"
@@ -166,7 +165,7 @@ with open(labels_path) as image_labels:
 		line = line.strip('\n')
 		line = line.replace(" ", "_")
 		labels.append(line)
-
+		
 imgpath = "kinect_images_new/white_front/tall.jpeg"
 
 chessboard_keypoints = get_keypoints(imgpath)[0]
@@ -188,13 +187,55 @@ for x in range(0, 41, 10):
 # heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
-# square_labels = label_squares(chess_squares, chess_squares_count)
-"""
+square_labels = label_squares(chess_squares, chess_squares_count)
+
 board_state_string = create_board_string(square_labels)
 
 moved_board_state_string, game_over = my_next_move(board_state_string)
 if game_over == "":
     # Game not over
 	print "Game not over"
-"""
+
 visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
+
+# Final chess game loop - not in use while still testing
+model_path = "models/inception9.pb"
+labels_path = "labels.txt"
+labels = []
+with open(labels_path) as image_labels:
+	for line in image_labels:
+		line = line.strip('\n')
+		line = line.replace(" ", "_")
+		labels.append(line)
+window_y = 80
+window_x = 80
+stepSize = 40
+
+result = "not yet"
+move = 0
+while result == "":
+	list_of_files = glob.glob('board_images/*')
+	imgpath = max(list_of_files, key=os.path.getctime)
+
+	chessboard_keypoints = get_keypoints(imgpath)[0]
+	chess_square_points = create_chess_square_points(chessboard_keypoints)
+
+	img = cv2.imread(imgpath)
+	img = crop_image(chessboard_keypoints, img)
+
+	# 13 dimensional because there are 13 possible classifications
+	heatmap = np.zeros((img.shape[0], img.shape[1], 13))
+	countmap = np.zeros((img.shape[0], img.shape[1]))
+	model = Model(model_path)
+	for x in range(0, 41, 10):
+		heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
+
+	chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
+	square_labels = label_squares(chess_squares, chess_squares_count)
+
+	board_state_string = create_board_string(square_labels)
+
+	moved_board_state_string, game_over = my_next_move(board_state_string)
+	if game_over == "":
+		# Game not over
+		print ""

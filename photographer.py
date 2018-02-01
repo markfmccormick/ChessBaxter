@@ -33,7 +33,7 @@ def natural_keys(text):
 
 def image_callback(msg):
 
-    path = "kinect_images_new/black_front"
+    path = "board_images"
     print "\nReceived an image!"
     try:
         # Convert ROS image message to openCV2
@@ -49,7 +49,7 @@ def image_callback(msg):
         new_image_counter += 1
         print new_image_counter
         cv2.imwrite(path+'/camera_image' + str(new_image_counter) + '.jpeg', cv2_img)
-        time.sleep(1)
+        time.sleep(2)
 
 
 def main():
