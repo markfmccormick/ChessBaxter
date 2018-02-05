@@ -202,7 +202,7 @@ visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
 angle_test = glob.glob('angle_test/*')
 for file in angle_test:
-    chessboard_keypoints = get_keypoints(imgpath)[0]
+    	chessboard_keypoints = get_keypoints(imgpath)[0]
 	chess_square_points = create_chess_square_points(chessboard_keypoints)
 	img = cv2.imread(imgpath)
 	img = crop_image(chessboard_keypoints, img)
@@ -210,7 +210,7 @@ for file in angle_test:
 	countmap = np.zeros((img.shape[0], img.shape[1]))
 	model = Model(model_path)
 	for x in range(0, 41, 10):
-    	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
+    		heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
 	os.mkdir("heatmaps/"+file[11:-4])
 	visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/"+file[11:-4]+"/")
 
