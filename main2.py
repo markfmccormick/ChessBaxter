@@ -157,16 +157,17 @@ def label_squares_test(chess_squares, chess_squares_count, heatmap, countmap):
 	return square_labels
 
 # model_path = "retrained_graph.pb"
-model_path = "models/inception9.pb"
+model_path = "models/inception12.pb"
 labels_path = "labels.txt"
+labels_path = "inception12.txt"
 labels = []
 with open(labels_path) as image_labels:
 	for line in image_labels:
 		line = line.strip('\n')
 		line = line.replace(" ", "_")
 		labels.append(line)
-		
-imgpath = "kinect_images_new/white_front/tall.jpeg"
+
+imgpath = "kinect_images_new/white_front/middle.jpeg"
 
 chessboard_keypoints = get_keypoints(imgpath)[0]
 
@@ -179,7 +180,7 @@ window_y = 80
 window_x = 80
 stepSize = 40
 # 13 dimensional because there are 13 possible classifications
-heatmap = np.zeros((img.shape[0], img.shape[1], 13))
+heatmap = np.zeros((img.shape[0], img.shape[1], 6))
 countmap = np.zeros((img.shape[0], img.shape[1]))
 model = Model(model_path)
 for x in range(0, 41, 10):
@@ -187,14 +188,14 @@ for x in range(0, 41, 10):
 # heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
-square_labels = label_squares(chess_squares, chess_squares_count)
-
-board_state_string = create_board_string(square_labels)
-
-moved_board_state_string, game_over = my_next_move(board_state_string)
-if game_over == "":
-    # Game not over
-	print "Game not over"
+# square_labels = label_squares(chess_squares, chess_squares_count)
+#
+# board_state_string = create_board_string(square_labels)
+#
+# moved_board_state_string, game_over = my_next_move(board_state_string)
+# if game_over == "":
+#     # Game not over
+# 	print "Game not over"
 
 visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
