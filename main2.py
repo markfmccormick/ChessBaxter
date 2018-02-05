@@ -157,15 +157,16 @@ def label_squares_test(chess_squares, chess_squares_count, heatmap, countmap):
 	return square_labels
 
 # model_path = "retrained_graph.pb"
-model_path = "models/inception12.pb"
+model_path = "models/inception11.pb"
 labels_path = "labels.txt"
-labels_path = "inception12.txt"
+# labels_path = "inception12.txt"
 labels = []
 with open(labels_path) as image_labels:
 	for line in image_labels:
 		line = line.strip('\n')
 		line = line.replace(" ", "_")
 		labels.append(line)
+
 
 imgpath = "kinect_images_new/white_front/middle.jpeg"
 
@@ -180,7 +181,7 @@ window_y = 80
 window_x = 80
 stepSize = 40
 # 13 dimensional because there are 13 possible classifications
-heatmap = np.zeros((img.shape[0], img.shape[1], 6))
+heatmap = np.zeros((img.shape[0], img.shape[1], 13))
 countmap = np.zeros((img.shape[0], img.shape[1]))
 model = Model(model_path)
 for x in range(0, 41, 10):
@@ -198,6 +199,20 @@ chess_squares, chess_squares_count = create_chess_squares(chess_square_points, h
 # 	print "Game not over"
 
 visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
+
+angle_test = glob.glob('angle_test/*')
+for file in angle_test:
+    chessboard_keypoints = get_keypoints(imgpath)[0]
+	chess_square_points = create_chess_square_points(chessboard_keypoints)
+	img = cv2.imread(imgpath)
+	img = crop_image(chessboard_keypoints, img)
+	heatmap = np.zeros((img.shape[0], img.shape[1], 13))
+	countmap = np.zeros((img.shape[0], img.shape[1]))
+	model = Model(model_path)
+	for x in range(0, 41, 10):
+    	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
+	os.mkdir("heatmaps/"+file[11:-4])
+	visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/"+file[11:-4]+"/")
 
 # Final chess game loop - not in use while still testing
 model_path = "models/inception9.pb"

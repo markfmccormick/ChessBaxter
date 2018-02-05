@@ -74,4 +74,7 @@ board_string = create_board_string(results)
 
 board_state_string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0"
 
-moved_board_state_string, game_over = my_next_move(board_state_string)
+# moved_board_state_string, game_over = my_next_move(board_state_string)
+angle_test = glob.glob('angle_test/*')
+for file in angle_test:
+	os.mkdir("heatmaps/"+file[11:-4]) 
