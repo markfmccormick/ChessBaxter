@@ -139,7 +139,8 @@ def label_squares(chess_squares, chess_squares_count):
 	square_labels = []
 	for square in chess_squares:
 		high = square.argmax(axis=0)
-		square_labels.append(label_strings[high[2]])
+		print square.shape
+		print high
 	return square_labels
 
 def label_squares_test(chess_squares, chess_squares_count, heatmap, countmap):
@@ -202,6 +203,7 @@ visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
 angle_test = glob.glob('angle_test/*')
 for file in angle_test:
+	imgpath=file
     	chessboard_keypoints = get_keypoints(imgpath)[0]
 	chess_square_points = create_chess_square_points(chessboard_keypoints)
 	img = cv2.imread(imgpath)
