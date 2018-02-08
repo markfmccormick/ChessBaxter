@@ -182,30 +182,31 @@ square_labels = ["rook","knight","bishop","queen","king","bishop","knight","rook
 	 	   "PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN",
 	 	   "ROOK","KNIGHT","BISHOP","QUEEN","KING","BISHOP","KNIGHT","ROOK"]
 board_state_string = create_board_string(square_labels)
-board_state_string.append(" w KQkq - 0 0")
+board_state_string += " w KQkq - 0 0"
 game_over = ""
 while game_over == "":
     	moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
-		initial_square = best_move[0:2]
-		final_square = best_move[2:4]
+	initial_square = best_move.uci()[0:2]
+	final_square = best_move.uci()[2:4]
+	print "Move made: "+best_move.uci()
+	# Baxter performs the move
 
-		# Baxter performs the move
-
-		board = chess.Board(moved_board_state_string)
-		if board.is_checkmate():
+	board = chess.Board(moved_board_state_string)
+	if board.is_checkmate():
     		game_over = "Checkmate, I lost."
-		elif board.is_game_over():
-			game_over = "Draw"
-		else:
-			game_over = ""
+	elif board.is_game_over():
+		game_over = "Draw"
+	else:
+		game_over = ""
 		
-		user_move = raw_input("Enter the move you made: ")
-		board.push(user_move)
-		board_state_string = str(board.fen).split("\'")[1]
-		print "Board after user move: "
-		print board
+	user_move = raw_input("Enter the move you made: ")
+	move = chess.Move.from_uci(user_move)
+	board.push(move)
+	board_state_string = str(board.fen).split("\'")[1]
+	print "Board after user move: "
+	print board
     	
-
+"""
 imgpath = "kinect_images_new/white_front/tall.jpeg"
 
 chessboard_keypoints = get_keypoints(imgpath)[0]
@@ -304,3 +305,4 @@ while result == "":
 	if game_over == "":
 		# Game not over
 		print ""
+"""
