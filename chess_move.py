@@ -10,6 +10,7 @@ def my_next_move(state_of_the_chessboard):
 
 	# Initialise the board with its current state
 	board = chess.Board(state_of_the_chessboard)
+	print "Board before move: "
 	print board
 
 	# Check for end of the game
@@ -26,13 +27,13 @@ def my_next_move(state_of_the_chessboard):
 		return fen, game_over
 
 
-	engine = chess.uci.popen_engine("stockfish")
+	engine = chess.uci.popen_engine("stockfish-8-linux/Linux/stockfish_8_x64")
 	engine.uci()
 	engine.ucinewgame()
 	engine.position(board)
 
 	try:
-		best_move = engine.go(depth=20)[0]
+		best_move = engine.go(depth=10)[0]
 	except RuntimeError:
 		raise EngineTerminatedException()
 		# return "Invalid state of the chessboard. Not a valid game."
@@ -40,6 +41,9 @@ def my_next_move(state_of_the_chessboard):
 	print "best move: ", best_move
 	board.push(best_move)
 	engine.position(board)
+	
+	print "Board after move: "
+	print board
 
 	# Check for end of the game
 	if board.is_checkmate():
@@ -52,4 +56,4 @@ def my_next_move(state_of_the_chessboard):
 
 	fen = str(board.fen).split("\'")[1]
 
-	return fen, game_over
+	return fen, game_over, best_move
