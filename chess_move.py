@@ -10,6 +10,7 @@ def my_next_move(state_of_the_chessboard):
 
 	# Initialise the board with its current state
 	board = chess.Board(state_of_the_chessboard)
+	print board
 
 	# Check for end of the game
 	if board.is_checkmate():

@@ -13,6 +13,9 @@ import cv2
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import chess
+import chess.uci
+import stockfish
 
 from detect_chessboard import get_keypoints
 from create_board_string import create_board_string
@@ -190,11 +193,21 @@ for x in range(0, 41, 10):
 # heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
+
 # square_labels = label_squares(chess_squares, chess_squares_count)
-#
-# board_state_string = create_board_string(square_labels)
-#
-# moved_board_state_string, game_over = my_next_move(board_state_string)
+square_labels = ["rook","knight","bishop","queen","king","bishop","knight","rook",
+		   "pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn",
+	 	   "square","square","square","square","square","square","square","square",
+	 	   "square","square","square","square","square","square","square","square",
+	 	   "square","square","square","square","square","square","square","square",
+	 	   "square","square","square","square","square","square","square","square",
+	 	   "PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN",
+	 	   "ROOK","KNIGHT","BISHOP","QUEEN","KING","BISHOP","KNIGHT","ROOK"]
+
+board_state_string = create_board_string(square_labels)
+board_state_string.append(" w KQkq - 0 0")
+
+moved_board_state_string, game_over = my_next_move(board_state_string)
 # if game_over == "":
 #     # Game not over
 # 	print "Game not over"
