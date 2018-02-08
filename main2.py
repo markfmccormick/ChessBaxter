@@ -172,6 +172,40 @@ with open(labels_path) as image_labels:
 		labels.append(line)
 
 
+# Testing baxter loop
+square_labels = ["rook","knight","bishop","queen","king","bishop","knight","rook",
+		   "pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn",
+	 	   "square","square","square","square","square","square","square","square",
+	 	   "square","square","square","square","square","square","square","square",
+	 	   "square","square","square","square","square","square","square","square",
+	 	   "square","square","square","square","square","square","square","square",
+	 	   "PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN",
+	 	   "ROOK","KNIGHT","BISHOP","QUEEN","KING","BISHOP","KNIGHT","ROOK"]
+board_state_string = create_board_string(square_labels)
+board_state_string.append(" w KQkq - 0 0")
+game_over = ""
+while game_over == "":
+    	moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
+		initial_square = best_move[0:2]
+		final_square = best_move[2:4]
+
+		# Baxter performs the move
+
+		board = chess.Board(moved_board_state_string)
+		if board.is_checkmate():
+    		game_over = "Checkmate, I lost."
+		elif board.is_game_over():
+			game_over = "Draw"
+		else:
+			game_over = ""
+		
+		user_move = raw_input("Enter the move you made: ")
+		board.push(user_move)
+		board_state_string = str(board.fen).split("\'")[1]
+		print "Board after user move: "
+		print board
+    	
+
 imgpath = "kinect_images_new/white_front/tall.jpeg"
 
 chessboard_keypoints = get_keypoints(imgpath)[0]
@@ -195,25 +229,18 @@ for x in range(0, 41, 10):
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
 
 # square_labels = label_squares(chess_squares, chess_squares_count)
-square_labels = ["rook","knight","bishop","queen","king","bishop","knight","rook",
-		   "pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn",
-	 	   "square","square","square","square","square","square","square","square",
-	 	   "square","square","square","square","square","square","square","square",
-	 	   "square","square","square","square","square","square","square","square",
-	 	   "square","square","square","square","square","square","square","square",
-	 	   "PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN",
-	 	   "ROOK","KNIGHT","BISHOP","QUEEN","KING","BISHOP","KNIGHT","ROOK"]
 
-board_state_string = create_board_string(square_labels)
-board_state_string.append(" w KQkq - 0 0")
+# board_state_string = create_board_string(square_labels)
+# board_state_string.append(" w KQkq - 0 0")
 
-moved_board_state_string, game_over = my_next_move(board_state_string)
+# moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
 # if game_over == "":
 #     # Game not over
 # 	print "Game not over"
 
 visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
+# Piece classification testing, checking different angles
 angle_test = glob.glob('angle_test/*')
 for file in angle_test:
 	imgpath=file
@@ -273,7 +300,7 @@ while result == "":
 
 	board_state_string = create_board_string(square_labels)
 
-	moved_board_state_string, game_over = my_next_move(board_state_string)
+	moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
 	if game_over == "":
 		# Game not over
 		print ""
