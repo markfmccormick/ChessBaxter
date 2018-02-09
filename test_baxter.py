@@ -20,25 +20,34 @@ board_state_string += " w KQkq - 0 0"
 game_over = ""
 
 position_map = {}
-right_joint_labels = ['right_s0', 'right_s1', 'right_e0', 'right_e1’, ’right_w0', 'right_w1', 'right_w2']
+right_joint_labels = ['right_s0', 'right_s1', 'right_e0', 'right_e1', 'right_w0', 'right_w1', 'right_w2']
 with open("square_positions.txt") as position_labels:
 	for line in position_labels:
 		square_positions = {}
-		joint_positions = {}
-		line = line.strip('\n')
-		line = line.split(":")
-		square = line[0]
-		positions = line[1].split(";")
-		values = positions[1].split(",")
-		for i in range(len(right_joint_labels)):
-			joint_positions[right_joint_labels[i]] = values[i]
-		square_positions[positions[0]] = joint_positions
-		values = positions[3].split(",")
-		for i in range(len(right_joint_labels)):
-			joint_positions[right_joint_labels[i]] = values[i]
-		square_positions[positions[2]] = joint_positions
-		position_map[square] = square_positions
+		joint_positions1 = {}
+		joint_positions2 = {}
+		if len(line) > 18:
+			line = line.strip('\n')
+			line = line.split(":")
+			square = line[0]
+			positions = line[1].split(";")
+			values = positions[1].split(",")
+			for i in range(len(right_joint_labels)):
+				joint_positions1[right_joint_labels[i]] = float(values[i])
+			square_positions[positions[0]] = joint_positions1
+			values = positions[3].split(",")
+			for i in range(len(right_joint_labels)):
+				joint_positions2[right_joint_labels[i]] = float(values[i])
+			square_positions[positions[2]] = joint_positions2
+			position_map[square] = square_positions
 
+while True:
+	user_move = raw_input("Enter the move you made: ")
+	initial_square = user_move[0:2]
+	final_square = user_move[2:4]
+	perform_move(initial_square, final_square, position_map)
+
+"""
 while game_over == "":
     moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
 	initial_square = best_move.uci()[0:2]
@@ -63,3 +72,4 @@ while game_over == "":
 	board_state_string = str(board.fen).split("\'")[1]
 	print "Board after user move: "
 	print board
+"""

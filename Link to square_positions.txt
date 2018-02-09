@@ -1,0 +1,1 @@
+/home/markmccormick/ros_ws/src/ChessBaxter/square_positions.txt
