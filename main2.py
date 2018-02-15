@@ -206,6 +206,26 @@ while game_over == "":
 	print "Board after user move: "
 	print board
 """
+position_map = {}
+right_joint_labels = ['right_s0', 'right_s1',
+				'right_e0', 'right_e1'
+				'right_w0', 'right_w1', 'right_w2']
+with open("square_positions.txt") as position_labels:
+	for line in position_labels:
+    	square_positions = {}
+		joint_positions = {}
+    	line = line.strip('\n')
+		line = line.split(":")
+		square = line[0]
+		positions = line[1].split(";")
+		for i in range(len(right_joint_labels)):
+    		joint_positions[right_joint_labels[i]] = positions[1][i]
+		square_positions[positions[0]] = joint_positions
+		for i in range(len(right_joint_labels)):
+    		joint_positions[right_joint_labels[i]] = positions[3][i]
+		square_positions[positions[2]] = joint_positions
+		position_map[square] = square_positions
+    	
 imgpath = "kinect_images_new/white_front/tall.jpeg"
 
 chessboard_keypoints = get_keypoints(imgpath)[0]
