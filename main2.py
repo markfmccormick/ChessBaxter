@@ -232,7 +232,7 @@ with open("square_positions.txt") as position_labels:
 			position_map[square] = square_positions
     	
 imgpath = "kinect_images_new/white_front/tall.jpeg"
-imgpath = "board_images/camera_image6.jpeg"
+imgpath = "board_images/camera_image3.jpeg"
 
 chessboard_keypoints = get_keypoints(imgpath)[0]
 
@@ -240,6 +240,8 @@ chess_square_points = create_chess_square_points(chessboard_keypoints)
 
 img = cv2.imread(imgpath)
 img = crop_image(chessboard_keypoints, img)
+cv2.imshow("Cropped", img)
+cv2.waitKey(0)
 
 window_y = 100
 window_x = 100
@@ -248,9 +250,6 @@ stepSize = 20
 heatmap = np.zeros((img.shape[0], img.shape[1], 13))
 countmap = np.zeros((img.shape[0], img.shape[1]))
 model = Model(model_path)
-# for x in range(0, 41, 10):
-# 	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
-heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
 path=""
 # for x in range(0, 41, 10):
 	# heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap,path)
