@@ -31,6 +31,8 @@ def atoi(text):
 def natural_keys(text):
     return [ atoi(c) for c in re.split('(\d+)', text) ]
 
+# Must launch 'roslaunch kinect2_bridge kinect2_bridge.launch'
+
 def image_callback(msg):
 
     path = "board_images"

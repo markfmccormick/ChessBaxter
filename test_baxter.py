@@ -40,27 +40,27 @@ with open("square_positions.txt") as position_labels:
 				joint_positions2[right_joint_labels[i]] = float(values[i])
 			square_positions[positions[2]] = joint_positions2
 			position_map[square] = square_positions
-
+"""
 while True:
 	user_move = raw_input("Enter the move you made: ")
 	initial_square = user_move[0:2]
 	final_square = user_move[2:4]
 	perform_move(initial_square, final_square, position_map)
-
 """
+
 while game_over == "":
-    moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
+	moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
 	initial_square = best_move.uci()[0:2]
 	final_square = best_move.uci()[2:4]
 	print initial_square, final_square
 	print "Move made: "+best_move.uci()
 
-    # Baxter makes the move
+	# Baxter makes the move
 	perform_move(initial_square, final_square, position_map)
 
 	board = chess.Board(moved_board_state_string)
 	if board.is_checkmate():
-    		game_over = "Checkmate, I lost."
+			game_over = "Checkmate, I lost."
 	elif board.is_game_over():
 		game_over = "Draw"
 	else:
@@ -72,4 +72,3 @@ while game_over == "":
 	board_state_string = str(board.fen).split("\'")[1]
 	print "Board after user move: "
 	print board
-"""

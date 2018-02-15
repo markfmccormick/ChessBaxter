@@ -161,9 +161,9 @@ def label_squares_test(chess_squares, chess_squares_count, heatmap, countmap):
 	return square_labels
 
 # model_path = "retrained_graph.pb"
-model_path = "models/inception12.pb"
+model_path = "models/inception13.pb"
 labels_path = "labels.txt"
-labels_path = "inception12.txt"
+#labels_path = "inception12.txt"
 labels = []
 with open(labels_path) as image_labels:
 	for line in image_labels:
@@ -177,21 +177,26 @@ right_joint_labels = ['right_s0', 'right_s1',
 				'right_w0', 'right_w1', 'right_w2']
 with open("square_positions.txt") as position_labels:
 	for line in position_labels:
-    	square_positions = {}
-		joint_positions = {}
-    	line = line.strip('\n')
-		line = line.split(":")
-		square = line[0]
-		positions = line[1].split(";")
-		for i in range(len(right_joint_labels)):
-    		joint_positions[right_joint_labels[i]] = positions[1][i]
-		square_positions[positions[0]] = joint_positions
-		for i in range(len(right_joint_labels)):
-    		joint_positions[right_joint_labels[i]] = positions[3][i]
-		square_positions[positions[2]] = joint_positions
-		position_map[square] = square_positions
+		square_positions = {}
+		joint_positions1 = {}
+		joint_positions2 = {}
+		if len(line) > 18:
+			line = line.strip('\n')
+			line = line.split(":")
+			square = line[0]
+			positions = line[1].split(";")
+			values = positions[1].split(",")
+			for i in range(len(right_joint_labels)):
+				joint_positions1[right_joint_labels[i]] = float(values[i])
+			square_positions[positions[0]] = joint_positions1
+			values = positions[3].split(",")
+			for i in range(len(right_joint_labels)):
+				joint_positions2[right_joint_labels[i]] = float(values[i])
+			square_positions[positions[2]] = joint_positions2
+			position_map[square] = square_positions
     	
 imgpath = "kinect_images_new/white_front/tall.jpeg"
+imgpath = "board_images/camera_image6.jpeg"
 
 chessboard_keypoints = get_keypoints(imgpath)[0]
 
@@ -200,16 +205,16 @@ chess_square_points = create_chess_square_points(chessboard_keypoints)
 img = cv2.imread(imgpath)
 img = crop_image(chessboard_keypoints, img)
 
-window_y = 80
-window_x = 80
+window_y = 100
+window_x = 100
 stepSize = 40
 # 13 dimensional because there are 13 possible classifications
 heatmap = np.zeros((img.shape[0], img.shape[1], 6))
 countmap = np.zeros((img.shape[0], img.shape[1]))
 model = Model(model_path)
-for x in range(0, 41, 10):
-	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
-# heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
+# for x in range(0, 41, 10):
+# 	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
+heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
 
@@ -224,7 +229,7 @@ chess_squares, chess_squares_count = create_chess_squares(chess_square_points, h
 # 	print "Game not over"
 
 visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
-
+"""
 # Piece classification testing, checking different angles
 angle_test = glob.glob('angle_test/*')
 for file in angle_test:
@@ -289,3 +294,4 @@ while result == "":
 	if game_over == "":
 		# Game not over
 		print ""
+"""
