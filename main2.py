@@ -58,8 +58,8 @@ def print_prediction(predictions):
 
 	return prediction, prediction_score
 
-def create_heatmap(image, stepSize, windowSize, model, heatmap, countmap):
-	# counter = 0
+def create_heatmap(image, stepSize, windowSize, model, heatmap, countmap, path):
+	counter = 0
 
 	for y in range(0, image.shape[0], stepSize):
 		for x in range(0, image.shape[1], stepSize):
@@ -68,8 +68,8 @@ def create_heatmap(image, stepSize, windowSize, model, heatmap, countmap):
 							window.shape[0] != windowSize[1]:
 				continue
 
-			# cv2.imwrite("sliding_window/"+str(counter)+".jpg", window)
-			# counter+=1
+			#cv2.imwrite(path+str(counter)+".jpg", window)
+			counter+=1
 
 			window = np.array(window)
 			predictions = model.predict(window)
@@ -161,9 +161,9 @@ def label_squares_test(chess_squares, chess_squares_count, heatmap, countmap):
 	return square_labels
 
 # model_path = "retrained_graph.pb"
-model_path = "models/inception12.pb"
+model_path = "models/inception13.pb"
 labels_path = "labels.txt"
-labels_path = "inception12.txt"
+# labels_path = "inception12.txt"
 labels = []
 with open(labels_path) as image_labels:
 	for line in image_labels:
@@ -171,7 +171,7 @@ with open(labels_path) as image_labels:
 		line = line.replace(" ", "_")
 		labels.append(line)
 
-
+"""
 # Testing baxter loop
 square_labels = ["rook","knight","bishop","queen","king","bishop","knight","rook",
 		   "pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn",
@@ -205,7 +205,6 @@ while game_over == "":
 	board_state_string = str(board.fen).split("\'")[1]
 	print "Board after user move: "
 	print board
-    	
 """
 imgpath = "kinect_images_new/white_front/tall.jpeg"
 
@@ -220,12 +219,13 @@ window_y = 80
 window_x = 80
 stepSize = 40
 # 13 dimensional because there are 13 possible classifications
-heatmap = np.zeros((img.shape[0], img.shape[1], 6))
+heatmap = np.zeros((img.shape[0], img.shape[1], 13))
 countmap = np.zeros((img.shape[0], img.shape[1]))
 model = Model(model_path)
+path=""
 for x in range(0, 41, 10):
-	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
-# heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
+	heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap,path)
+#heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap, "sliding_window/")
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
 
@@ -253,12 +253,14 @@ for file in angle_test:
 		img = cv2.imread(imgpath)
 		img = cv2.resize(img, (0,0), fx=0.5, fy=0.5)
 	#	img = crop_image(chessboard_keypoints, img)
-		heatmap = np.zeros((img.shape[0], img.shape[1], 6))
+		heatmap = np.zeros((img.shape[0], img.shape[1], 13))
 		countmap = np.zeros((img.shape[0], img.shape[1]))
 		model = Model(model_path)
+		path = "sliding_window/"+file[11:-4]
+		os.mkdir(path)
 		for x in range(0, 41, 10):
-			heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap)
-		heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
+			heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap, path)
+		#heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap, path)
 		visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/"+file[11:-4]+"/")
 	except:
 		print file
@@ -305,4 +307,3 @@ while result == "":
 	if game_over == "":
 		# Game not over
 		print ""
-"""
