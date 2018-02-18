@@ -148,6 +148,17 @@ def label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
 		square_labels.append(labels_map[labels[index]])
 	return square_labels
 
+def label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_map):
+    square_labels = []
+	for point in center_keypoints:
+    	totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+    	for y in range(int(point[0])-40:int(point[0])+40):
+    		for x in range(int(point[1])-40:int(point[1])+40):
+    			totals += heatmap[y][x]
+		index = np.argmax(totals)
+    	square_labels.append(labels_map[labels[index]])
+	return square_labels
+
 # model_path = "retrained_graph.pb"
 model_path = "models/inception14.pb"
 labels_path = "labels.txt"
