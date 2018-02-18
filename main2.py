@@ -149,14 +149,25 @@ def label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
 	return square_labels
 
 def label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_map):
-    square_labels = []
+	square_labels = []
 	for point in center_keypoints:
-    	totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-    	for y in range(int(point[0])-40:int(point[0])+40):
-    		for x in range(int(point[1])-40:int(point[1])+40):
-    			totals += heatmap[y][x]
+		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+		for y in range(int(point[0])-20, int(point[0])+20):
+			for x in range(int(point[1])-20, int(point[1])+20):
+				totals += heatmap[x][y]
 		index = np.argmax(totals)
-    	square_labels.append(labels_map[labels[index]])
+		square_labels.append(labels_map[labels[index]])
+	return square_labels
+
+def label_squares_experimental(center_keypoints, heatmap, countmap, labels, labels_map):
+	square_labels = []
+	for point in center_keypoints:
+		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+		for y in range(int(point[0])-20, int(point[0])+20):
+			for x in range(int(point[1])-20, int(point[1])+20):
+				totals += heatmap[x][y]
+		index = np.argmax(totals)
+		square_labels.append(labels_map[labels[index]])
 	return square_labels
 
 # model_path = "retrained_graph.pb"
@@ -231,11 +242,19 @@ heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, h
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
 
+# square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
 square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
 board_state_string = create_board_string(square_labels)
-
 board_state_string += " w KQkq - 0 0"
 board = chess.Board(board_state_string)
+print "Method 1: "
+print board
+
+square_labels = label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_map)
+board_state_string = create_board_string(square_labels)
+board_state_string += " w KQkq - 0 0"
+board = chess.Board(board_state_string)
+print "Method 2: "
 print board
 
 # moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
@@ -243,7 +262,7 @@ print board
 #     # Game not over
 # 	print "Game not over"
 
-visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
+# visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
 # Final chess game loop - not in use while still testing
 model_path = "models/inception9.pb"
