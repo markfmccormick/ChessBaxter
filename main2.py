@@ -60,7 +60,7 @@ def print_prediction(predictions):
 
 def create_heatmap(image, stepSize, windowSize, model, heatmap, countmap, path):
 	counter = 0
-
+	path = path + str(windowSize[0]) + "_window_"
 	for y in range(0, image.shape[0], stepSize):
 		for x in range(0, image.shape[1], stepSize):
 			window = image[y:y+windowSize[1], x:x+windowSize[0]]
@@ -68,9 +68,9 @@ def create_heatmap(image, stepSize, windowSize, model, heatmap, countmap, path):
 							window.shape[0] != windowSize[1]:
 				continue
 
-			#cv2.imwrite(path+str(counter)+".jpg", window)
+			# cv2.imwrite(path+str(counter)+".jpg", window)
 			counter+=1
-
+			
 			window = np.array(window)
 			predictions = model.predict(window)
 
@@ -78,6 +78,7 @@ def create_heatmap(image, stepSize, windowSize, model, heatmap, countmap, path):
 				for m in range(windowSize[0]):
 					heatmap[y+n][x+m] += predictions[0]
 					countmap[y+n][x+m] += 1
+			
 
 	return heatmap, countmap
 
@@ -108,6 +109,12 @@ def crop_image(points, img):
 	return img[top:bottom, left:right]
 
 def create_chess_square_points(chessboard_keypoints):
+	crop_points = {}
+	crop_points["top"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 1])][80][1]+20)
+	crop_points["bottom"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 1])][0][1]-40)
+	crop_points["right"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 0])][80][0]+20)
+	crop_points["left"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 0])][0][0]-20)
+
 	keypoints = chessboard_keypoints.reshape(9,9,2)
 	positions = []
 	for y in range(8):
@@ -118,7 +125,7 @@ def create_chess_square_points(chessboard_keypoints):
 			square[1].append(keypoints[y+1][x])
 			square[1].append(keypoints[y+1][x+1])
 			positions.append(square)
-	return np.array(positions, dtype="float32")
+	return np.array(positions, dtype="float32"), crop_points
 
 def create_chess_squares(chess_square_points, heatmap, countmap):
 	squares = []
@@ -133,35 +140,16 @@ def create_chess_squares(chess_square_points, heatmap, countmap):
 		count -= 1
 	return squares, squares_count
 
-# TODO
-# Lots of work and experimentation here to figure out the best way to do this
-def label_squares(chess_squares, chess_squares_count):
-    # List ordered to match labels.txt file
-	label_strings = ["bishop", "king", "knight", "pawn", "queen", "rook",
-					"square", "BISHOP", "KING", "KNIGHT", "PAWN", "QUEEN", "ROOK"]
+def label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map):
 	square_labels = []
-	for square in chess_squares:
-		high = square.argmax(axis=0)
-		print square.shape
-		print high
-	return square_labels
-
-def label_squares_test(chess_squares, chess_squares_count, heatmap, countmap):
-	# List ordered to match labels.txt file
-	label_strings = ["bishop", "king", "knight", "pawn", "queen", "rook",
-					"square", "BISHOP", "KING", "KNIGHT", "PAWN", "QUEEN", "ROOK"]
-	king_or_queen = [1,4,8,11]
-	square_labels = []
-
-	for square in chess_squares:
-		high = square.argmax(axis=0)
-		if high[2] in king_or_queen:
-			column = 1
-
+	for point in center_keypoints:
+		predictions = heatmap[int(point[1])][int(point[0])]
+		index = np.argmax(predictions)
+		square_labels.append(labels_map[labels[index]])
 	return square_labels
 
 # model_path = "retrained_graph.pb"
-model_path = "models/inception13.pb"
+model_path = "models/inception14.pb"
 labels_path = "labels.txt"
 #labels_path = "inception12.txt"
 # labels_path = "inception12.txt"
@@ -171,42 +159,9 @@ with open(labels_path) as image_labels:
 		line = line.strip('\n')
 		line = line.replace(" ", "_")
 		labels.append(line)
+labels_map = {"black_pawn": "pawn", "black_knight": "knight", "black_bishop": "bishop", "black_king": "king", "black_queen": "queen", "black_rook": "rook",
+			"empty_square": "square", "white_pawn": "PAWN", "white_knight": "KNIGHT", "white_bishop": "BISHOP", "white_king": "KING", "white_queen": "QUEEN", "white_rook": "ROOK"}
 
-"""
-# Testing baxter loop
-square_labels = ["rook","knight","bishop","queen","king","bishop","knight","rook",
-		   "pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn",
-	 	   "square","square","square","square","square","square","square","square",
-	 	   "square","square","square","square","square","square","square","square",
-	 	   "square","square","square","square","square","square","square","square",
-	 	   "square","square","square","square","square","square","square","square",
-	 	   "PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN",
-	 	   "ROOK","KNIGHT","BISHOP","QUEEN","KING","BISHOP","KNIGHT","ROOK"]
-board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
-game_over = ""
-while game_over == "":
-    	moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
-	initial_square = best_move.uci()[0:2]
-	final_square = best_move.uci()[2:4]
-	print "Move made: "+best_move.uci()
-	# Baxter performs the move
-
-	board = chess.Board(moved_board_state_string)
-	if board.is_checkmate():
-    		game_over = "Checkmate, I lost."
-	elif board.is_game_over():
-		game_over = "Draw"
-	else:
-		game_over = ""
-		
-	user_move = raw_input("Enter the move you made: ")
-	move = chess.Move.from_uci(user_move)
-	board.push(move)
-	board_state_string = str(board.fen).split("\'")[1]
-	print "Board after user move: "
-	print board
-"""
 position_map = {}
 right_joint_labels = ['right_s0', 'right_s1',
 				'right_e0', 'right_e1'
@@ -230,18 +185,26 @@ with open("square_positions.txt") as position_labels:
 				joint_positions2[right_joint_labels[i]] = float(values[i])
 			square_positions[positions[2]] = joint_positions2
 			position_map[square] = square_positions
-    	
+
 imgpath = "kinect_images_new/white_front/tall.jpeg"
-imgpath = "board_images/camera_image3.jpeg"
+imgpath = "board_images/camera_image2.jpeg"
 
-chessboard_keypoints = get_keypoints(imgpath)[0]
+corner_keypoints, center_keypoints = get_keypoints(imgpath)
+corner_keypoints = corner_keypoints[0]
+center_keypoints = center_keypoints[0]
 
-chess_square_points = create_chess_square_points(chessboard_keypoints)
+chess_square_points, crop_points = create_chess_square_points(corner_keypoints)
 
 img = cv2.imread(imgpath)
-img = crop_image(chessboard_keypoints, img)
-cv2.imshow("Cropped", img)
-cv2.waitKey(0)
+# img = crop_image(chessboard_keypoints, img)
+img = img[crop_points["bottom"]:crop_points["top"],crop_points["left"]:crop_points["right"]]
+cv2.imwrite("cropped_image.jpeg", img)
+imgpath = "cropped_image.jpeg"
+img = cv2.imread(imgpath)
+
+corner_keypoints, center_keypoints = get_keypoints(imgpath)
+corner_keypoints = corner_keypoints[0]
+center_keypoints = center_keypoints[0]
 
 window_y = 100
 window_x = 100
@@ -257,10 +220,12 @@ heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, h
 
 chess_squares, chess_squares_count = create_chess_squares(chess_square_points, heatmap, countmap)
 
-# square_labels = label_squares(chess_squares, chess_squares_count)
+square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
+board_state_string = create_board_string(square_labels)
 
-# board_state_string = create_board_string(square_labels)
-# board_state_string.append(" w KQkq - 0 0")
+board_state_string += " w KQkq - 0 0"
+board = chess.Board(board_state_string)
+print board
 
 # moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
 # if game_over == "":
@@ -268,31 +233,6 @@ chess_squares, chess_squares_count = create_chess_squares(chess_square_points, h
 # 	print "Game not over"
 
 visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
-"""
-# Piece classification testing, checking different angles
-angle_test = glob.glob('angle_test/*')
-for file in angle_test:
-	imgpath=file
-	print file
-	try:
-		os.mkdir("heatmaps/"+file[11:-4])
-#    		chessboard_keypoints = get_keypoints(imgpath)[0]
-	#	chess_square_points = create_chess_square_points(chessboard_keypoints)
-		img = cv2.imread(imgpath)
-		img = cv2.resize(img, (0,0), fx=0.5, fy=0.5)
-	#	img = crop_image(chessboard_keypoints, img)
-		heatmap = np.zeros((img.shape[0], img.shape[1], 13))
-		countmap = np.zeros((img.shape[0], img.shape[1]))
-		model = Model(model_path)
-		path = "sliding_window/"+file[11:-4]
-		os.mkdir(path)
-		for x in range(0, 41, 10):
-			heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap, path)
-		#heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap, path)
-		visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/"+file[11:-4]+"/")
-	except:
-		print file
-		pass
 
 # Final chess game loop - not in use while still testing
 model_path = "models/inception9.pb"
@@ -335,4 +275,3 @@ while result == "":
 	if game_over == "":
 		# Game not over
 		print ""
-"""

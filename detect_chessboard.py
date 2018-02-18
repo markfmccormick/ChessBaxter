@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
-def display_detection(dst, img1, img2, matchesMask, keypoints, new_keypoints, kp1, kp2, good):
+def display_detection(dst, img1, img2, matchesMask, keypoints, square_keypoints, center_keypoints, kp1, kp2, good):
     img2 = cv2.polylines(img2,[np.int32(dst)],True,255,3, cv2.LINE_AA)
     draw_params = dict(matchColor = (0,255,0), # draw matches in green color
                        singlePointColor = None,
@@ -11,7 +11,9 @@ def display_detection(dst, img1, img2, matchesMask, keypoints, new_keypoints, kp
 
     for point in keypoints[0]:
         cv2.circle(img1, (int(point[0]),int(point[1])), 3, (255,0,0), -1)
-    for point in new_keypoints[0]:
+    for point in square_keypoints[0]:
+        cv2.circle(img2, (int(point[0]),int(point[1])), 3, (255,0,0), -1)
+    for point in center_keypoints[0]:
         cv2.circle(img2, (int(point[0]),int(point[1])), 3, (255,0,0), -1)
 
     img3 = cv2.drawMatches(img1,kp1,img2,kp2,good,None,**draw_params)
@@ -21,7 +23,7 @@ def display_detection(dst, img1, img2, matchesMask, keypoints, new_keypoints, kp
 #Based on the code in this tutorial: https://docs.opencv.org/3.3.0/d1/de0/tutorial_py_feature_homography.html
 def get_keypoints(imgpath):
 
-    show_detection = True
+    show_detection = False
 
     MIN_MATCH_COUNT = 10
 
@@ -74,9 +76,19 @@ def get_keypoints(imgpath):
             keypoints[0].append([line[0], line[1]])
 
     keypoints = np.array(keypoints, dtype="float32")
-    new_keypoints = cv2.perspectiveTransform(keypoints, M)
+    square_keypoints = cv2.perspectiveTransform(keypoints, M)
+
+    keypoints = [[]]
+    with open('chessboard_keypoints_center.txt') as chessboard_keypoints:
+        for line in chessboard_keypoints:
+            line = line.strip('\n')
+            line = line.split(',')
+            keypoints[0].append([line[0], line[1]])
+    
+    keypoints = np.array(keypoints, dtype="float32")
+    center_keypoints = cv2.perspectiveTransform(keypoints, M)
 
     if show_detection:
-        display_detection(dst, img1, img2, matchesMask, keypoints, new_keypoints, kp1, kp2, good)
+        display_detection(dst, img1, img2, matchesMask, keypoints, square_keypoints, center_keypoints, kp1, kp2, good)
 
-    return new_keypoints
+    return square_keypoints, center_keypoints
