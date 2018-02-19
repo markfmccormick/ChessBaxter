@@ -46,12 +46,12 @@ def image_callback(msg):
         # Save image in jpeg format, limit folder to max 100 pictures length
         global counter
         global new_image_counter
-        # if new_image_counter == 100:
-        #     new_image_counter = 0
+        if new_image_counter == 20:
+            new_image_counter = 0
         new_image_counter += 1
         print new_image_counter
         cv2.imwrite(path+'/camera_image' + str(new_image_counter) + '.jpeg', cv2_img)
-        time.sleep(2)
+        time.sleep(1)
 
 
 def main():
