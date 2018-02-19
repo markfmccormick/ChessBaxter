@@ -20,7 +20,7 @@ import stockfish
 from detect_chessboard import get_keypoints
 from create_board_string import create_board_string
 from chess_move import my_next_move
-from move_baxter import perform_move
+#from move_baxter import perform_move
 
 class Model(object):
 
@@ -75,11 +75,11 @@ def visualise_heatmap(img, heatmap, countmap, labels, base_path):
 
 def get_crop_points(chessboard_keypoints):
     crop_points = {}
-	crop_points["top"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 1])][80][1]+20)
-	crop_points["bottom"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 1])][0][1]-40)
-	crop_points["right"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 0])][80][0]+20)
-	crop_points["left"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 0])][0][0]-20)
-	return crop_points
+    crop_points["top"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 1])][80][1]+20)
+    crop_points["bottom"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 1])][0][1]-40)
+    crop_points["right"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 0])][80][0]+20)
+    crop_points["left"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 0])][0][0]-20)
+    return crop_points
 
 def label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map):
 	square_labels = []
@@ -93,30 +93,39 @@ def label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_
 	square_labels = []
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-		for y in range(int(point[0])-20, int(point[0])+20):
-			for x in range(int(point[1])-20, int(point[1])+20):
+		for y in range(int(point[0])-30, int(point[0])+30):
+			for x in range(int(point[1])-10, int(point[1])+10):
 				totals += heatmap[x][y]
 		index = np.argmax(totals)
 		square_labels.append(labels_map[labels[index]])
 	return square_labels
 
-def label_squares_experimental(center_keypoints, heatmap, countmap, labels, labels_map):
+def label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map):
 	square_labels = []
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
 		for y in range(int(point[0])-20, int(point[0])+20):
 			for x in range(int(point[1])-20, int(point[1])+20):
-				totals += heatmap[x][y]
+				for z in range(len(heatmap[x][y])):
+                                    if heatmap[x][y][z] > totals[z]:
+                                        totals[z] = heatmap[x][y][z]
 		index = np.argmax(totals)
 		square_labels.append(labels_map[labels[index]])
 	return square_labels
 
-def classify_board():
-    # 13 dimensional because there are 13 possible classifications
-	heatmap = np.zeros((img.shape[0], img.shape[1], 13))
-	countmap = np.zeros((img.shape[0], img.shape[1]))
+def label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, labels_map):
+	square_labels = []
+	for point in center_keypoints:
+		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+		for y in range(int(point[0])-20, int(point[0])+20):
+			for x in range(int(point[1])-20, int(point[1])+20):
+				totals += heatmap[x][y]/((abs(point[0]-y)+abs(point[1]-x))*100)
+		index = np.argmax(totals)
+		square_labels.append(labels_map[labels[index]])
+	return square_labels
 
-    corner_keypoints, center_keypoints = get_keypoints(imgpath)
+def classify_board(imgpath):
+        corner_keypoints, center_keypoints = get_keypoints(imgpath)
 	corner_keypoints = corner_keypoints[0]
 	center_keypoints = center_keypoints[0]
 	crop_points = get_crop_points(corner_keypoints)
@@ -130,6 +139,13 @@ def classify_board():
 	corner_keypoints = corner_keypoints[0]
 	center_keypoints = center_keypoints[0]
 
+        # cv2.imshow("Cropped image", img)
+        # cv2.waitKey(0)
+
+    # 13 dimensional because there are 13 possible classifications
+	heatmap = np.zeros((img.shape[0], img.shape[1], 13))
+	countmap = np.zeros((img.shape[0], img.shape[1]))
+
 	# window_y = 80
 	# window_x = 80
 	# stepSize = 40
@@ -138,7 +154,7 @@ def classify_board():
 	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
 	# visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
-	return heatmap, countmap
+	return heatmap, countmap, center_keypoints
 
 model_path = "models/inception14.pb"
 labels_path = "labels.txt"
@@ -183,7 +199,7 @@ window_y = 100
 window_x = 100
 stepSize = 20
 
-heatmap, countmap = classify_board()
+heatmap, countmap, center_keypoints = classify_board(imgpath)
 
 square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
 board_state_string = create_board_string(square_labels)
@@ -199,6 +215,20 @@ board = chess.Board(board_state_string)
 print "Method 2 - Box total: "
 print board
 
+square_labels = label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map)
+board_state_string = create_board_string(square_labels)
+board_state_string += " w KQkq - 0 0"
+board = chess.Board(board_state_string)
+print "Method 3 - Peak value: "
+print board
+
+square_labels = label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, labels_map)
+board_state_string = create_board_string(square_labels)
+board_state_string += " w KQkq - 0 0"
+board = chess.Board(board_state_string)
+print "Method 4 - Center weighted: "
+print board
+
 game_over = "not yet"
 move = 0
 while game_over == "":
@@ -210,14 +240,14 @@ while game_over == "":
 	square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
 	board_state_string = create_board_string(square_labels)
 	if move == 0:
-    	board_state_string += " w KQkq - 0 0"
+    	    board_state_string += " w KQkq - 0 0"
 
 	moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
 	initial_square = best_move.uci()[0:2]
 	final_square = best_move.uci()[2:4]
 	print "Move made: "+best_move.uci()
 
-	perform_move(initial_square, final_square, position_map)
+	#perform_move(initial_square, final_square, position_map)
 
 	board = chess.Board(moved_board_state_string)
 	if board.is_checkmate():
