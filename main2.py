@@ -117,9 +117,19 @@ def label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, l
 	square_labels = []
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+                county = 1
 		for y in range(int(point[0])-20, int(point[0])+20):
+                        countx = 1
 			for x in range(int(point[1])-20, int(point[1])+20):
-				totals += heatmap[x][y]/((abs(point[0]-y)+abs(point[1]-x))*100)
+				totals += heatmap[x][y]*(countx*county)
+                                if x - int(point[1]) > 0:
+                                    countx += 1
+                                else:
+                                    countx -= 1
+                        if y - int(point[0]) > 0:
+                            county += 1
+                        else:
+                            county -= 1
 		index = np.argmax(totals)
 		square_labels.append(labels_map[labels[index]])
 	return square_labels
@@ -158,7 +168,7 @@ def classify_board(imgpath):
 
 model_path = "models/inception14.pb"
 labels_path = "labels.txt"
-imgpath = "board_images/camera_image2.jpeg"
+imgpath = "board_images/camera_image40.jpeg"
 
 model = Model(model_path)
 
@@ -197,7 +207,7 @@ with open("square_positions.txt") as position_labels:
 
 window_y = 100
 window_x = 100
-stepSize = 20
+stepSize = 50
 
 heatmap, countmap, center_keypoints = classify_board(imgpath)
 
