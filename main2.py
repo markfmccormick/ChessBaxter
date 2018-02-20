@@ -149,8 +149,8 @@ def classify_board(imgpath):
 	corner_keypoints = corner_keypoints[0]
 	center_keypoints = center_keypoints[0]
 
-        # cv2.imshow("Cropped image", img)
-        # cv2.waitKey(0)
+    	# cv2.imshow("Cropped image", img)
+    	# cv2.waitKey(0)
 
     # 13 dimensional because there are 13 possible classifications
 	heatmap = np.zeros((img.shape[0], img.shape[1], 13))
@@ -207,62 +207,94 @@ with open("square_positions.txt") as position_labels:
 
 window_y = 100
 window_x = 100
-stepSize = 50
+stepSize = 20
 
-heatmap, countmap, center_keypoints = classify_board(imgpath)
+# heatmap, countmap, center_keypoints = classify_board(imgpath)
 
-square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
-board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
-board = chess.Board(board_state_string)
-print "Method 1 - Center point: "
-print board
+# square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
+# board_state_string = create_board_string(square_labels)
+# board_state_string += " w KQkq - 0 0"
+# board = chess.Board(board_state_string)
+# print "Method 1 - Center point: "
+# print board
 
-square_labels = label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_map)
-board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
-board = chess.Board(board_state_string)
-print "Method 2 - Box total: "
-print board
+# square_labels = label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_map)
+# board_state_string = create_board_string(square_labels)
+# board_state_string += " w KQkq - 0 0"
+# board = chess.Board(board_state_string)
+# print "Method 2 - Box total: "
+# print board
 
-square_labels = label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map)
-board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
-board = chess.Board(board_state_string)
-print "Method 3 - Peak value: "
-print board
+# square_labels = label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map)
+# board_state_string = create_board_string(square_labels)
+# board_state_string += " w KQkq - 0 0"
+# board = chess.Board(board_state_string)
+# print "Method 3 - Peak value: "
+# print board
 
-square_labels = label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, labels_map)
-board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
-board = chess.Board(board_state_string)
-print "Method 4 - Center weighted: "
-print board
+# square_labels = label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, labels_map)
+# board_state_string = create_board_string(square_labels)
+# board_state_string += " w KQkq - 0 0"
+# board = chess.Board(board_state_string)
+# print "Method 4 - Center weighted: "
+# print board
 
-game_over = "not yet"
+game_over = ""
 move = 0
 while game_over == "":
 	list_of_files = glob.glob('board_images/*')
 	imgpath = max(list_of_files, key=os.path.getctime)
 
-	heatmap, countmap = classify_board()
+	# heatmap, countmap = classify_board(imgpath)
+
+	# square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
+	# board_state_string = create_board_string(square_labels)
+	
+	# if move == 0:
+    # 	board_state_string += " w KQkq - 0 0"
+
+	# moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
+	# initial_square = best_move.uci()[0:2]
+	# final_square = best_move.uci()[2:4]
+	# print "Move made: "+best_move.uci()
+
+	# #perform_move(initial_square, final_square, position_map)
+
+	# board = chess.Board(moved_board_state_string)
+	# if board.is_checkmate():
+	# 	game_over = "Checkmate, I lost."
+	# elif board.is_game_over():
+	# 	game_over = "Draw"
+	# else:
+	# 	game_over = ""
+	heatmap, countmap, center_keypoints = classify_board(imgpath)
 
 	square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
 	board_state_string = create_board_string(square_labels)
-	if move == 0:
-    	    board_state_string += " w KQkq - 0 0"
+	board_state_string += " w KQkq - 0 0"
+	board = chess.Board(board_state_string)
+	print "Method 1 - Center point: "
+	print board
 
-	moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
-	initial_square = best_move.uci()[0:2]
-	final_square = best_move.uci()[2:4]
-	print "Move made: "+best_move.uci()
+	square_labels = label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_map)
+	board_state_string = create_board_string(square_labels)
+	board_state_string += " w KQkq - 0 0"
+	board = chess.Board(board_state_string)
+	print "Method 2 - Box total: "
+	print board
 
-	#perform_move(initial_square, final_square, position_map)
+	square_labels = label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map)
+	board_state_string = create_board_string(square_labels)
+	board_state_string += " w KQkq - 0 0"
+	board = chess.Board(board_state_string)
+	print "Method 3 - Peak value: "
+	print board
 
-	board = chess.Board(moved_board_state_string)
-	if board.is_checkmate():
-		game_over = "Checkmate, I lost."
-	elif board.is_game_over():
-		game_over = "Draw"
-	else:
-		game_over = ""
+	square_labels = label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, labels_map)
+	board_state_string = create_board_string(square_labels)
+	board_state_string += " w KQkq - 0 0"
+	board = chess.Board(board_state_string)
+	print "Method 4 - Center weighted: "
+	print board
+
+	wait = raw_input("Press Enter to continue: ")

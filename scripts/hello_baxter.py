@@ -59,8 +59,8 @@ on['right_w0']=0.0
 on['right_w1']=0.0
 on['right_w2']=0.0
 
-#right.move_to_joint_positions(base_right)
-#left.move_to_joint_positions(base_left)
+right.move_to_joint_positions(base_right)
+left.move_to_joint_positions(base_left)
 
 right_gripper = baxter_interface.Gripper('right')
 # right_gripper.reboot()
@@ -120,7 +120,12 @@ right_gripper.close()
 time.sleep(0.25)
 right.move_to_joint_positions(position_map[position]["above"])
 
+position = "a4"
+right.move_to_joint_positions(position_map[position]["above"])
 right.move_to_joint_positions(position_map[position]["on"])
 right_gripper.open()
 time.sleep(0.25)
 right.move_to_joint_positions(position_map[position]["above"])
+
+right.move_to_joint_positions(base_right)
+left.move_to_joint_positions(base_left)
