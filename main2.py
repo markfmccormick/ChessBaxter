@@ -93,6 +93,7 @@ def label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_
 	square_labels = []
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+		totals = [0,0,0,0,0,0,0]
 		for y in range(int(point[0])-30, int(point[0])+30):
 			for x in range(int(point[1])-10, int(point[1])+10):
 				totals += heatmap[x][y]
@@ -104,6 +105,7 @@ def label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map):
 	square_labels = []
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+		totals = [0,0,0,0,0,0,0]
 		for y in range(int(point[0])-20, int(point[0])+20):
 			for x in range(int(point[1])-20, int(point[1])+20):
 				for z in range(len(heatmap[x][y])):
@@ -117,7 +119,8 @@ def label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, l
 	square_labels = []
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-                county = 1
+		totals = [0,0,0,0,0,0,0]
+		county = 1
 		for y in range(int(point[0])-20, int(point[0])+20):
                         countx = 1
 			for x in range(int(point[1])-20, int(point[1])+20):
@@ -130,6 +133,20 @@ def label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, l
                             county += 1
                         else:
                             county -= 1
+		index = np.argmax(totals)
+		square_labels.append(labels_map[labels[index]])
+	return square_labels
+
+def label_squares_box_total_threshold(center_keypoints, heatmap, countmap, labels, labels_map):
+	square_labels = []
+	for point in center_keypoints:
+		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+		totals = [0,0,0,0,0,0,0]
+		for y in range(int(point[0])-20, int(point[0])+20):
+			for x in range(int(point[1])-20, int(point[1])+20):
+				for z in range(len(heatmap[x][y])):
+					if heatmap[x][y][z] > 0.2:
+						totals[z] += heatmap[x][y][z]
 		index = np.argmax(totals)
 		square_labels.append(labels_map[labels[index]])
 	return square_labels
@@ -153,7 +170,7 @@ def classify_board(imgpath):
     	# cv2.waitKey(0)
 
     # 13 dimensional because there are 13 possible classifications
-	heatmap = np.zeros((img.shape[0], img.shape[1], 13))
+	heatmap = np.zeros((img.shape[0], img.shape[1], 7))
 	countmap = np.zeros((img.shape[0], img.shape[1]))
 
 	# window_y = 80
@@ -164,11 +181,12 @@ def classify_board(imgpath):
 	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
 	# visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
-	return heatmap, countmap, center_keypoints
+	return heatmap, countmap, center_keypoints, crop_points
 
-model_path = "models/inception14.pb"
+model_path = "models/inception17.pb"
 labels_path = "labels.txt"
-imgpath = "board_images/camera_image40.jpeg"
+labels_path = "inception17.txt"
+imgpath = "test_images/camera_image2.jpeg"
 
 model = Model(model_path)
 
@@ -180,6 +198,7 @@ with open(labels_path) as image_labels:
 		labels.append(line)
 labels_map = {"black_pawn": "pawn", "black_knight": "knight", "black_bishop": "bishop", "black_king": "king", "black_queen": "queen", "black_rook": "rook",
 			"empty_square": "square", "white_pawn": "PAWN", "white_knight": "KNIGHT", "white_bishop": "BISHOP", "white_king": "KING", "white_queen": "QUEEN", "white_rook": "ROOK"}
+labels_map = {"pawn": "pawn", "knight": "knight", "bishop": "bishop", "king": "king", "queen": "queen", "rook": "rook", "empty_square": "square"}
 
 position_map = {}
 right_joint_labels = ['right_s0', 'right_s1',
@@ -209,37 +228,66 @@ window_y = 100
 window_x = 100
 stepSize = 20
 
-# heatmap, countmap, center_keypoints = classify_board(imgpath)
+heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
 
-# square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
-# board_state_string = create_board_string(square_labels)
-# board_state_string += " w KQkq - 0 0"
-# board = chess.Board(board_state_string)
-# print "Method 1 - Center point: "
-# print board
+# for y in range(len(heatmap)):
+# 	for x in range(len(heatmap[y])):
+# 		heatmap[y][x] = heatmap[y][x]/countmap[y][x]
 
-# square_labels = label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_map)
-# board_state_string = create_board_string(square_labels)
-# board_state_string += " w KQkq - 0 0"
-# board = chess.Board(board_state_string)
-# print "Method 2 - Box total: "
-# print board
+square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
+board_state_string = create_board_string(square_labels)
+board_state_string += " w KQkq - 0 0"
+board = chess.Board(board_state_string)
+print "Method 1 - Center point: "
+print board
 
-# square_labels = label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map)
-# board_state_string = create_board_string(square_labels)
-# board_state_string += " w KQkq - 0 0"
-# board = chess.Board(board_state_string)
-# print "Method 3 - Peak value: "
-# print board
+square_labels = label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_map)
+board_state_string = create_board_string(square_labels)
+board_state_string += " w KQkq - 0 0"
+board = chess.Board(board_state_string)
+print "Method 2 - Box total: "
+print board
 
-# square_labels = label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, labels_map)
-# board_state_string = create_board_string(square_labels)
-# board_state_string += " w KQkq - 0 0"
-# board = chess.Board(board_state_string)
-# print "Method 4 - Center weighted: "
-# print board
+square_labels = label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map)
+board_state_string = create_board_string(square_labels)
+board_state_string += " w KQkq - 0 0"
+board = chess.Board(board_state_string)
+print "Method 3 - Peak value: "
+print board
 
-game_over = ""
+square_labels = label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, labels_map)
+board_state_string = create_board_string(square_labels)
+board_state_string += " w KQkq - 0 0"
+board = chess.Board(board_state_string)
+print "Method 4 - Center weighted: "
+print board
+
+square_labels = label_squares_box_total_threshold(center_keypoints, heatmap, countmap, labels, labels_map)
+board_state_string = create_board_string(square_labels)
+board_state_string += " w KQkq - 0 0"
+board = chess.Board(board_state_string)
+print "Method 5 - Box total threshold: "
+print board
+
+img = cv2.imread(imgpath)
+img = img[crop_points["bottom"]:crop_points["top"],crop_points["left"]:crop_points["right"]]
+imgpath = "cropped_image.jpeg"
+cv2.imwrite(imgpath, img)
+img = cv2.imread(imgpath)
+square_labels = []
+for point in center_keypoints:
+	window = img[int(point[1])-50:int(point[1])+50, int(point[0])-50:int(point[0])+50]
+	predictions = model.predict(window)
+	index = np.argmax(predictions)
+	square_labels.append(labels_map[labels[index]])
+board_state_string = create_board_string(square_labels)
+board_state_string += " w KQkq - 0 0"
+board = chess.Board(board_state_string)
+print "Method 6 - Window around center: "
+print board
+
+
+game_over = "test"
 move = 0
 while game_over == "":
 	list_of_files = glob.glob('board_images/*')
