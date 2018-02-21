@@ -93,7 +93,7 @@ def label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_
 	square_labels = []
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-		totals = [0,0,0,0,0,0,0]
+		# totals = [0,0,0,0,0,0,0]
 		for y in range(int(point[0])-30, int(point[0])+30):
 			for x in range(int(point[1])-10, int(point[1])+10):
 				totals += heatmap[x][y]
@@ -105,7 +105,7 @@ def label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map):
 	square_labels = []
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-		totals = [0,0,0,0,0,0,0]
+		# totals = [0,0,0,0,0,0,0]
 		for y in range(int(point[0])-20, int(point[0])+20):
 			for x in range(int(point[1])-20, int(point[1])+20):
 				for z in range(len(heatmap[x][y])):
@@ -119,7 +119,7 @@ def label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, l
 	square_labels = []
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-		totals = [0,0,0,0,0,0,0]
+		# totals = [0,0,0,0,0,0,0]
 		county = 1
 		for y in range(int(point[0])-20, int(point[0])+20):
                         countx = 1
@@ -141,7 +141,7 @@ def label_squares_box_total_threshold(center_keypoints, heatmap, countmap, label
 	square_labels = []
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-		totals = [0,0,0,0,0,0,0]
+		# totals = [0,0,0,0,0,0,0]
 		for y in range(int(point[0])-20, int(point[0])+20):
 			for x in range(int(point[1])-20, int(point[1])+20):
 				for z in range(len(heatmap[x][y])):
@@ -170,7 +170,8 @@ def classify_board(imgpath):
     	# cv2.waitKey(0)
 
     # 13 dimensional because there are 13 possible classifications
-	heatmap = np.zeros((img.shape[0], img.shape[1], 7))
+	# heatmap = np.zeros((img.shape[0], img.shape[1], 7))
+	heatmap = np.zeros((img.shape[0], img.shape[1], 13))
 	countmap = np.zeros((img.shape[0], img.shape[1]))
 
 	# window_y = 80
@@ -183,9 +184,9 @@ def classify_board(imgpath):
 
 	return heatmap, countmap, center_keypoints, crop_points
 
-model_path = "models/inception17.pb"
+model_path = "models/inception14.pb"
 labels_path = "labels.txt"
-labels_path = "inception17.txt"
+# labels_path = "inception17.txt"
 imgpath = "test_images/camera_image2.jpeg"
 
 model = Model(model_path)
@@ -198,7 +199,7 @@ with open(labels_path) as image_labels:
 		labels.append(line)
 labels_map = {"black_pawn": "pawn", "black_knight": "knight", "black_bishop": "bishop", "black_king": "king", "black_queen": "queen", "black_rook": "rook",
 			"empty_square": "square", "white_pawn": "PAWN", "white_knight": "KNIGHT", "white_bishop": "BISHOP", "white_king": "KING", "white_queen": "QUEEN", "white_rook": "ROOK"}
-labels_map = {"pawn": "pawn", "knight": "knight", "bishop": "bishop", "king": "king", "queen": "queen", "rook": "rook", "empty_square": "square"}
+# labels_map = {"pawn": "pawn", "knight": "knight", "bishop": "bishop", "king": "king", "queen": "queen", "rook": "rook", "empty_square": "square"}
 
 position_map = {}
 right_joint_labels = ['right_s0', 'right_s1',
