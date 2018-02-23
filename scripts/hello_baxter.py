@@ -37,17 +37,33 @@ base_left = {'left_s0': 1.0, 'left_s1': -1.0,
 	'left_w0': 0.67, 'left_w1': 1.03, 'left_w2': -0.50}
 
 
+pivot_from_on = {'right_s0': 0.7, 'right_s1': -0.29,
+	'right_e0': 0.0, 'right_e1': 1.2,
+	'right_w0': 0.0, 'right_w1': 0.0, 'right_w2': 0.0}
+
+pivot_from_above = {'right_s0': 0.7, 'right_s1': -0.3,
+	'right_e0': 0.0, 'right_e1': 0.7,
+	'right_w0': 0.0, 'right_w1': 0.5, 'right_w2': 0.0}
+
+pivot_to_above = {'right_s0': 0.7, 'right_s1': -0.13,
+	'right_e0': 0.0, 'right_e1': 0.0,
+	'right_w0': 0.0, 'right_w1': 1.5, 'right_w2': 0.0}
+
+pivot_to_on = {'right_s0': 0.7, 'right_s1': 0.165,
+	'right_e0': 0.0, 'right_e1': 0.0,
+	'right_w0': 0.0, 'right_w1': 1.2, 'right_w2': 0.0}
+
 # s0 for angle,
 # s1 for height
 # e1 for elbow reach
 # w1 for wrist height/reach
 above = right.joint_angles()
-above['right_s0']=1.3
-above['right_s1']=0.0
+above['right_s0']=0.7
+above['right_s1']=0.15
 above['right_e0']=0.0
 above['right_e1']=0.0
 above['right_w0']=0.0
-above['right_w1']=1.0
+above['right_w1']=1.2
 above['right_w2']=0.0
 
 on = right.joint_angles()
@@ -67,8 +83,8 @@ right_gripper = baxter_interface.Gripper('right')
 right_gripper.calibrate()
 # Percentage of maximum, default 50,40,30,5
 right_gripper.set_parameters({"velocity":50.0, 
-							"moving_force":20.0, 
-							"holding_force":10.0,
+							"moving_force":40.0, 
+							"holding_force":30.0,
 							"dead_zone":5.0})
 # right_gripper.open()
 # right_gripper.close()
@@ -108,9 +124,14 @@ with open("square_positions.txt") as position_labels:
 			square_positions[positions[2]] = joint_positions2
 			position_map[square] = square_positions
 
+# right.move_to_joint_positions(pivot_from_above)
+# right.move_to_joint_positions(pivot_from_on)
+
+pivot_points = ["a8", "a7", ]
+
 #s0,s1,e0,e1,w0,w1,w2
 #position = raw_input("Enter a square: ")
-position = "a8"
+position = "b8"
 print position_map[position]["above"]
 print position_map[position]["on"]
 right.move_to_joint_positions(position_map[position]["above"])
@@ -120,7 +141,17 @@ right_gripper.close()
 time.sleep(0.25)
 right.move_to_joint_positions(position_map[position]["above"])
 
-position = "a4"
+right.move_to_joint_positions(pivot_from_above)
+right.move_to_joint_positions(pivot_from_on)
+right_gripper.open()
+right.move_to_joint_positions(pivot_from_above)
+right.move_to_joint_positions(pivot_to_above)
+right.move_to_joint_positions(pivot_to_on)
+right_gripper.close()
+time.sleep(0.25)
+right.move_to_joint_positions(pivot_to_above)
+
+position = "g3"
 right.move_to_joint_positions(position_map[position]["above"])
 right.move_to_joint_positions(position_map[position]["on"])
 right_gripper.open()

@@ -94,8 +94,8 @@ def label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
 		# totals = [0,0,0,0,0,0,0]
-		for y in range(int(point[0])-30, int(point[0])+30):
-			for x in range(int(point[1])-10, int(point[1])+10):
+		for y in range(int(point[0])-10, int(point[0])+10):
+			for x in range(int(point[1])-5, int(point[1])+5):
 				totals += heatmap[x][y]
 		index = np.argmax(totals)
 		square_labels.append(labels_map[labels[index]])
@@ -287,6 +287,7 @@ board = chess.Board(board_state_string)
 print "Method 6 - Window around center: "
 print board
 
+visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
 game_over = "test"
 move = 0
