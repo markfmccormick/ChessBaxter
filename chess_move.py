@@ -37,7 +37,7 @@ def my_next_move(state_of_the_chessboard):
 	except RuntimeError:
 		raise EngineTerminatedException()
 		# return "Invalid state of the chessboard. Not a valid game."
-
+		
 	print "best move: ", best_move
 	board.push(best_move)
 	engine.position(board)
