@@ -40,7 +40,7 @@ class Model(object):
 		predictions = self.session.run(self.softmax_tensor, {'graph1/DecodeJpeg:0': image_data})
 		return predictions
 
-def create_heatmap(image, stepSize, windowSize, model, heatmap, countmap):
+def create_heatmap(image, stepSize, windowSize, model, heatmap, countmap, threshold):
 	for y in range(0, image.shape[0], stepSize):
 		for x in range(0, image.shape[1], stepSize):
 			window = image[y:y+windowSize[1], x:x+windowSize[0]]
@@ -53,8 +53,13 @@ def create_heatmap(image, stepSize, windowSize, model, heatmap, countmap):
 
 			for n in range(windowSize[1]):
 				for m in range(windowSize[0]):
-					heatmap[y+n][x+m] += predictions[0]
 					countmap[y+n][x+m] += 1
+					if threshold > 0.0:
+						for i in range(len(predictions[0])):
+							if predictions[0][i] >= threshold:
+								heatmap[y+n][x+m][i] += predictions[0][i]
+					else:
+						heatmap[y+n][x+m] += predictions[0]
 			
 	return heatmap, countmap
 
@@ -179,15 +184,31 @@ def classify_board(imgpath):
 	# stepSize = 40
 	# for x in range(0, 41, 10):
 		# heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap,path)
-	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap)
-	# visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
+	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap, 0.0)
+	visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
 	return heatmap, countmap, center_keypoints, crop_points
 
+def box_total_data(center_keypoints, heatmap, countmap, labels, labels_map):
+	square_data = []
+	for point in center_keypoints:
+		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+		# totals = [0,0,0,0,0,0,0]
+		for y in range(int(point[0])-10, int(point[0])+10):
+			for x in range(int(point[1])-5, int(point[1])+5):
+				totals += heatmap[x][y]
+		square_data.append(totals)
+	return square_data
+
+def square_classification_smart(square_data, labels, labels_map, piece_count):
+	pass
+
 model_path = "models/inception14.pb"
+model_path = "models/inception20.pb"
 labels_path = "labels.txt"
 # labels_path = "inception17.txt"
 imgpath = "test_images/camera_image2.jpeg"
+imgpath = "pictures/2.jpeg"
 
 model = Model(model_path)
 
@@ -199,6 +220,8 @@ with open(labels_path) as image_labels:
 		labels.append(line)
 labels_map = {"black_pawn": "pawn", "black_knight": "knight", "black_bishop": "bishop", "black_king": "king", "black_queen": "queen", "black_rook": "rook",
 			"empty_square": "square", "white_pawn": "PAWN", "white_knight": "KNIGHT", "white_bishop": "BISHOP", "white_king": "KING", "white_queen": "QUEEN", "white_rook": "ROOK"}
+piece_count = {"black_pawn": 8, "black_knight": 2, "black_bishop": 2, "black_king": 1, "black_queen": 1, "black_rook": 2,
+			"empty_square": 32, "white_pawn": 8, "white_knight": 2, "white_bishop": 2, "white_king": 1, "white_queen": 1, "white_rook": 2}
 # labels_map = {"pawn": "pawn", "knight": "knight", "bishop": "bishop", "king": "king", "queen": "queen", "rook": "rook", "empty_square": "square"}
 
 position_map = {}
@@ -287,7 +310,13 @@ board = chess.Board(board_state_string)
 print "Method 6 - Window around center: "
 print board
 
-visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
+square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
+square_labels = square_classification_smart(square_data, labels, labels_map, piece_count)
+board_state_string = create_board_string(square_labels)
+board_state_string += " w KQkq - 0 0"
+board = chess.Board(board_state_string)
+print "Method 7 - Box total smart: "
+print board
 
 game_over = "test"
 move = 0
