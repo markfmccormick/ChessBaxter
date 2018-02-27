@@ -201,21 +201,27 @@ def box_total_data(center_keypoints, heatmap, countmap, labels, labels_map):
 		square_data.append(totals)
 	return square_data
 
-def square_classification_smart_precedence(square_data, labels, labels_map, piece_count):
-    square_labels = ["" for i in square_data]
+def square_classification_smart_precedence(square_data, labels, labels_map, piece_count_master):
+	piece_count = piece_count_master
+	square_labels = ["" for i in square_data]
 	blank = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-	precedence_list = ["empty_square", "black_king", "black_queen", "white_king", "white_queen", "black_rook", "white_rook"
-						"black_bishop", "black_knight", "white_bishop", "white_knight", "white_pawn", "black_pawn"]
+	precedence_list = ["empty_square", "black_king", "black_queen", "white_king", "white_queen", "black_rook", "white_rook",
+						"white_pawn", "black_pawn", "white_bishop", "white_knight", "black_knight", "black_bishop"]
+
 	for piece in precedence_list:
-    	largest = 0
-		index = labels.index(piece)
-		for count in range(len(piece_count[piece])):
+		piece_index = labels.index(piece)
+		for count in range(piece_count[piece]):
+			max_index = -1
+			max_value = -1
 			for i in range(len(square_data)):
-				if square_data[i][index] > largest:
-    				largest = i
-			square_labels[largest] = labels_map[labels[index]]
-			square_data[largest] = blank
-			
+				if square_data[i][piece_index] > max_value:
+					max_index = i
+					max_value = square_data[i][piece_index]
+			square_labels[max_index] = labels_map[labels[piece_index]]
+			square_data[max_index] = blank
+		for j in range(len(square_data)):
+			square_data[j][piece_index] = 0
+
 	return square_labels
 
 model_path = "models/inception14.pb"
@@ -224,6 +230,7 @@ labels_path = "labels.txt"
 # labels_path = "inception17.txt"
 imgpath = "test_images/camera_image2.jpeg"
 imgpath = "pictures/1.jpeg"
+# imgpath = "pictures/queen/1.jpeg"
 
 model = Model(model_path)
 
@@ -237,6 +244,10 @@ labels_map = {"black_pawn": "pawn", "black_knight": "knight", "black_bishop": "b
 			"empty_square": "square", "white_pawn": "PAWN", "white_knight": "KNIGHT", "white_bishop": "BISHOP", "white_king": "KING", "white_queen": "QUEEN", "white_rook": "ROOK"}
 piece_count = {"black_pawn": 8, "black_knight": 2, "black_bishop": 2, "black_king": 1, "black_queen": 1, "black_rook": 2,
 			"empty_square": 32, "white_pawn": 8, "white_knight": 2, "white_bishop": 2, "white_king": 1, "white_queen": 1, "white_rook": 2}
+# For testing
+# piece_count = {"black_pawn": 0, "black_knight": 0, "black_bishop": 0, "black_king": 0, "black_queen": 1, "black_rook": 0,
+# 			"empty_square": 60, "white_pawn": 0, "white_knight": 0, "white_bishop": 0, "white_king": 0, "white_queen": 1, "white_rook": 0}
+
 board_square_map= {"a1":0 ,"a2":1, "a3":2, "a4":3, "a5":4, "a6":5, "a7":6, "a8":7, 
 					"b1":8 ,"b2":9, "b3":10, "b4":11, "b5":12, "b6":13, "b7":14, "b8":15,
 					"c1":16 ,"c2":17, "c3":18, "c4":19, "c5":20, "c6":21, "c7":22, "c8":23, 
