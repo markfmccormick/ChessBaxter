@@ -99,7 +99,7 @@ def label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
 		# totals = [0,0,0,0,0,0,0]
-		for y in range(int(point[0])-10, int(point[0])+10):
+		for y in range(int(point[0])-5, int(point[0])+5):
 			for x in range(int(point[1])-5, int(point[1])+5):
 				totals += heatmap[x][y]
 		index = np.argmax(totals)
@@ -184,7 +184,7 @@ def classify_board(imgpath):
 	# stepSize = 40
 	# for x in range(0, 41, 10):
 		# heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap,path)
-	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap, 0.0)
+	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap, 0.15)
 	visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
 	return heatmap, countmap, center_keypoints, crop_points
@@ -204,11 +204,11 @@ def square_classification_smart(square_data, labels, labels_map, piece_count):
 	pass
 
 model_path = "models/inception14.pb"
-model_path = "models/inception20.pb"
+model_path = "models/inception22.pb"
 labels_path = "labels.txt"
 # labels_path = "inception17.txt"
 imgpath = "test_images/camera_image2.jpeg"
-imgpath = "pictures/2.jpeg"
+imgpath = "pictures/1.jpeg"
 
 model = Model(model_path)
 
