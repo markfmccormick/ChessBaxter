@@ -171,6 +171,7 @@ def classify_board(imgpath):
 	corner_keypoints = corner_keypoints[0]
 	center_keypoints = center_keypoints[0]
 
+		# Show cropped image, for debugging purposes
     	# cv2.imshow("Cropped image", img)
     	# cv2.waitKey(0)
 
@@ -194,14 +195,28 @@ def box_total_data(center_keypoints, heatmap, countmap, labels, labels_map):
 	for point in center_keypoints:
 		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
 		# totals = [0,0,0,0,0,0,0]
-		for y in range(int(point[0])-10, int(point[0])+10):
+		for y in range(int(point[0])-5, int(point[0])+5):
 			for x in range(int(point[1])-5, int(point[1])+5):
 				totals += heatmap[x][y]
 		square_data.append(totals)
 	return square_data
 
-def square_classification_smart(square_data, labels, labels_map, piece_count):
-	pass
+def square_classification_smart_precedence(square_data, labels, labels_map, piece_count):
+    square_labels = ["" for i in square_data]
+	blank = [0,0,0,0,0,0,0,0,0,0,0,0,0]
+	precedence_list = ["empty_square", "black_king", "black_queen", "white_king", "white_queen", "black_rook", "white_rook"
+						"black_bishop", "black_knight", "white_bishop", "white_knight", "white_pawn", "black_pawn"]
+	for piece in precedence_list:
+    	largest = 0
+		index = labels.index(piece)
+		for count in range(len(piece_count[piece])):
+			for i in range(len(square_data)):
+				if square_data[i][index] > largest:
+    				largest = i
+			square_labels[largest] = labels_map[labels[index]]
+			square_data[largest] = blank
+			
+	return square_labels
 
 model_path = "models/inception14.pb"
 model_path = "models/inception22.pb"
@@ -319,7 +334,7 @@ print "Method 6 - Window around center: "
 print board
 
 square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
-square_labels = square_classification_smart(square_data, labels, labels_map, piece_count)
+square_labels = square_classification_smart_precedence(square_data, labels, labels_map, piece_count)
 board_state_string = create_board_string(square_labels)
 board_state_string += " w KQkq - 0 0"
 board = chess.Board(board_state_string)
