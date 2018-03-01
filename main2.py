@@ -20,6 +20,8 @@ import stockfish
 from detect_chessboard import get_keypoints
 from create_board_string import create_board_string
 from chess_move import my_next_move
+from naive_classification import show_naive_classification
+from load_maps import create_constants
 #from move_baxter import perform_move
 
 class Model(object):
@@ -86,76 +88,6 @@ def get_crop_points(chessboard_keypoints):
     crop_points["left"] = int(chessboard_keypoints[np.argsort(chessboard_keypoints[:, 0])][0][0]-20)
     return crop_points
 
-def label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map):
-	square_labels = []
-	for point in center_keypoints:
-		predictions = heatmap[int(point[1])][int(point[0])]
-		index = np.argmax(predictions)
-		square_labels.append(labels_map[labels[index]])
-	return square_labels
-
-def label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_map):
-	square_labels = []
-	for point in center_keypoints:
-		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-		# totals = [0,0,0,0,0,0,0]
-		for y in range(int(point[0])-5, int(point[0])+5):
-			for x in range(int(point[1])-5, int(point[1])+5):
-				totals += heatmap[x][y]
-		index = np.argmax(totals)
-		square_labels.append(labels_map[labels[index]])
-	return square_labels
-
-def label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map):
-	square_labels = []
-	for point in center_keypoints:
-		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-		# totals = [0,0,0,0,0,0,0]
-		for y in range(int(point[0])-20, int(point[0])+20):
-			for x in range(int(point[1])-20, int(point[1])+20):
-				for z in range(len(heatmap[x][y])):
-                                    if heatmap[x][y][z] > totals[z]:
-                                        totals[z] = heatmap[x][y][z]
-		index = np.argmax(totals)
-		square_labels.append(labels_map[labels[index]])
-	return square_labels
-
-def label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, labels_map):
-	square_labels = []
-	for point in center_keypoints:
-		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-		# totals = [0,0,0,0,0,0,0]
-		county = 1
-		for y in range(int(point[0])-20, int(point[0])+20):
-                        countx = 1
-			for x in range(int(point[1])-20, int(point[1])+20):
-				totals += heatmap[x][y]*(countx*county)
-                                if x - int(point[1]) > 0:
-                                    countx += 1
-                                else:
-                                    countx -= 1
-                        if y - int(point[0]) > 0:
-                            county += 1
-                        else:
-                            county -= 1
-		index = np.argmax(totals)
-		square_labels.append(labels_map[labels[index]])
-	return square_labels
-
-def label_squares_box_total_threshold(center_keypoints, heatmap, countmap, labels, labels_map):
-	square_labels = []
-	for point in center_keypoints:
-		totals = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-		# totals = [0,0,0,0,0,0,0]
-		for y in range(int(point[0])-20, int(point[0])+20):
-			for x in range(int(point[1])-20, int(point[1])+20):
-				for z in range(len(heatmap[x][y])):
-					if heatmap[x][y][z] > 0.2:
-						totals[z] += heatmap[x][y][z]
-		index = np.argmax(totals)
-		square_labels.append(labels_map[labels[index]])
-	return square_labels
-
 def classify_board(imgpath):
         corner_keypoints, center_keypoints = get_keypoints(imgpath)
 	corner_keypoints = corner_keypoints[0]
@@ -185,7 +117,15 @@ def classify_board(imgpath):
 	# stepSize = 40
 	# for x in range(0, 41, 10):
 		# heatmap, countmap = create_heatmap(img, stepSize, (window_x+x, window_y+x), model, heatmap, countmap,path)
-	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap, 0.15)
+	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap, 0.0)
+
+	# Potential thresholding technique
+	for y in range(len(heatmap)):
+		for x in range(len(heatmap[y])):
+			for z in range(len(heatmap[y][x])):
+				if heatmap[y][x][z] <= 1.5:
+					heatmap[y][x][z] = 0
+
 	visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
 	return heatmap, countmap, center_keypoints, crop_points
@@ -201,12 +141,10 @@ def box_total_data(center_keypoints, heatmap, countmap, labels, labels_map):
 		square_data.append(totals)
 	return square_data
 
-def square_classification_smart_precedence(square_data, labels, labels_map, piece_count_master):
+def square_classification_smart_precedence(square_data, labels, labels_map, piece_count_master, precedence_list):
 	piece_count = piece_count_master
 	square_labels = ["" for i in square_data]
 	blank = [0,0,0,0,0,0,0,0,0,0,0,0,0]
-	precedence_list = ["empty_square", "black_king", "black_queen", "white_king", "white_queen", "black_rook", "white_rook",
-						"white_pawn", "black_pawn", "white_bishop", "white_knight", "black_knight", "black_bishop"]
 
 	for piece in precedence_list:
 		piece_index = labels.index(piece)
@@ -224,67 +162,67 @@ def square_classification_smart_precedence(square_data, labels, labels_map, piec
 
 	return square_labels
 
-model_path = "models/inception14.pb"
+# Gets the move made by the user
+# Assumes perfect board state detection, which I don't have
+def get_move_made(pre_board, post_board, board_square_map, piece_count, castling_rights, player_colour, letter_count_map):
+	# Can be True if a piece is taken
+	piece_taken = False
+
+	# Check for castling move
+	if player_colour == "white":
+		if castling_rights == "QUEENSIDE":
+			if str(post_board.piece_at(board_square_map["c1"])) == "K":
+				return "e1c1", piece_count, piece_taken
+		elif: castling_rights == "KINGSIDE":
+			if str(post_board.piece_at(board_square_map["g1"])) == "K":
+				return "e1g1", piece_count, piece_taken
+		elif castling_rights == "BOTH":
+			if str(post_board.piece_at(board_square_map["c1"])) == "K":
+				return "e1c1", piece_count, piece_taken
+			elif str(post_board.piece_at(board_square_map["g1"])) == "K":
+				return "e1g1", piece_count, piece_taken
+	elif player_colour == "black":
+		if castling_rights == "QUEENSIDE":
+			if str(post_board.piece_at(board_square_map["c8"])) == "k":
+				return "e8c8", piece_count, piece_taken
+		elif: castling_rights == "KINGSIDE":
+			if str(post_board.piece_at(board_square_map["g8"])) == "k":
+				return "e8g8", piece_count, piece_taken
+		elif castling_rights == "BOTH":
+			if str(post_board.piece_at(board_square_map["c8"])) == "k":
+				return "e8c8", piece_count, piece_taken
+			elif str(post_board.piece_at(board_square_map["g8"])) == "k":
+				return "e8g8", piece_count, piece_taken
+
+	for move in pre_board.legal_moves:
+		move = move.uci()
+		if pre_board.piece_at(board_square_map[move[0:2]]) == post_board.piece_at(board_square_map[move[2:4]]):
+			if str(pre_board.piece_at(board_square_map[move[2:4]])) != 'None':
+				piece_count[letter_count_map[str(pre_board.piece_at(board_square_map[move[2:4]]))]] -= 1
+				move_made = move
+				piece_taken = True
+				break
+			else:
+				move_made = move
+				break
+
+	return move_made, piece_count, piece_taken
+
+
+labels, labels_map, piece_count, board_square_map, position_map, base_right, base_left, precedence_list, letter_count_map = create_constants()
+# model_path = "models/inception14.pb"
 model_path = "models/inception22.pb"
 labels_path = "labels.txt"
 # labels_path = "inception17.txt"
-imgpath = "test_images/camera_image2.jpeg"
-imgpath = "pictures/1.jpeg"
+# imgpath = "test_images/camera_image2.jpeg"
+imgpath = "pictures/5.jpeg"
 # imgpath = "pictures/queen/1.jpeg"
 
 model = Model(model_path)
 
-labels = []
-with open(labels_path) as image_labels:
-	for line in image_labels:
-		line = line.strip('\n')
-		line = line.replace(" ", "_")
-		labels.append(line)
-labels_map = {"black_pawn": "pawn", "black_knight": "knight", "black_bishop": "bishop", "black_king": "king", "black_queen": "queen", "black_rook": "rook",
-			"empty_square": "square", "white_pawn": "PAWN", "white_knight": "KNIGHT", "white_bishop": "BISHOP", "white_king": "KING", "white_queen": "QUEEN", "white_rook": "ROOK"}
-piece_count = {"black_pawn": 8, "black_knight": 2, "black_bishop": 2, "black_king": 1, "black_queen": 1, "black_rook": 2,
-			"empty_square": 32, "white_pawn": 8, "white_knight": 2, "white_bishop": 2, "white_king": 1, "white_queen": 1, "white_rook": 2}
-# For testing
-# piece_count = {"black_pawn": 0, "black_knight": 0, "black_bishop": 0, "black_king": 0, "black_queen": 1, "black_rook": 0,
-# 			"empty_square": 60, "white_pawn": 0, "white_knight": 0, "white_bishop": 0, "white_king": 0, "white_queen": 1, "white_rook": 0}
-
-board_square_map= {"a1":0 ,"a2":1, "a3":2, "a4":3, "a5":4, "a6":5, "a7":6, "a8":7, 
-					"b1":8 ,"b2":9, "b3":10, "b4":11, "b5":12, "b6":13, "b7":14, "b8":15,
-					"c1":16 ,"c2":17, "c3":18, "c4":19, "c5":20, "c6":21, "c7":22, "c8":23, 
-					"d1":24 ,"d2":25, "d3":26, "d4":27, "d5":28, "d6":29, "d7":30, "d8":31, 
-					"e1":32 ,"e2":33, "e3":34, "e4":35, "e5":36, "e6":37, "e7":38, "e8":39, 
-					"f1":40 ,"f2":41, "f3":42, "f4":43, "f5":44, "f6":45, "f7":46, "f8":47, 
-					"g1":48 ,"g2":49, "g3":50, "g4":51, "g5":52, "g6":53, "g7":54, "g8":55, 
-					"h1":56 ,"h2":57, "h3":58, "h4":59, "h5":60, "h6":61, "h7":62, "h8":63}
-# labels_map = {"pawn": "pawn", "knight": "knight", "bishop": "bishop", "king": "king", "queen": "queen", "rook": "rook", "empty_square": "square"}
-
-position_map = {}
-right_joint_labels = ['right_s0', 'right_s1',
-				'right_e0', 'right_e1'
-				'right_w0', 'right_w1', 'right_w2']
-with open("square_positions.txt") as position_labels:
-	for line in position_labels:
-		square_positions = {}
-		joint_positions1 = {}
-		joint_positions2 = {}
-		if len(line) > 18:
-			line = line.strip('\n')
-			line = line.split(":")
-			square = line[0]
-			positions = line[1].split(";")
-			values = positions[1].split(",")
-			for i in range(len(right_joint_labels)):
-				joint_positions1[right_joint_labels[i]] = float(values[i])
-			square_positions[positions[0]] = joint_positions1
-			values = positions[3].split(",")
-			for i in range(len(right_joint_labels)):
-				joint_positions2[right_joint_labels[i]] = float(values[i])
-			square_positions[positions[2]] = joint_positions2
-			position_map[square] = square_positions
-
 window_y = 100
 window_x = 100
-stepSize = 20
+stepSize = 10
 
 heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
 
@@ -292,122 +230,177 @@ heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
 # 	for x in range(len(heatmap[y])):
 # 		heatmap[y][x] = heatmap[y][x]/countmap[y][x]
 
-square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
-board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
-board = chess.Board(board_state_string)
-print "Method 1 - Center point: "
-print board
-
-square_labels = label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_map)
-board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
-board = chess.Board(board_state_string)
-print "Method 2 - Box total: "
-print board
-
-square_labels = label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map)
-board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
-board = chess.Board(board_state_string)
-print "Method 3 - Peak value: "
-print board
-
-square_labels = label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, labels_map)
-board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
-board = chess.Board(board_state_string)
-print "Method 4 - Center weighted: "
-print board
-
-square_labels = label_squares_box_total_threshold(center_keypoints, heatmap, countmap, labels, labels_map)
-board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
-board = chess.Board(board_state_string)
-print "Method 5 - Box total threshold: "
-print board
-
-img = cv2.imread(imgpath)
-img = img[crop_points["bottom"]:crop_points["top"],crop_points["left"]:crop_points["right"]]
-imgpath = "cropped_image.jpeg"
-cv2.imwrite(imgpath, img)
-img = cv2.imread(imgpath)
-square_labels = []
-for point in center_keypoints:
-	window = img[int(point[1])-50:int(point[1])+50, int(point[0])-50:int(point[0])+50]
-	predictions = model.predict(window)
-	index = np.argmax(predictions)
-	square_labels.append(labels_map[labels[index]])
-board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
-board = chess.Board(board_state_string)
-print "Method 6 - Window around center: "
-print board
+show_naive_classification(center_keypoints, heatmap, countmap, labels, labels_map)
 
 square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
-square_labels = square_classification_smart_precedence(square_data, labels, labels_map, piece_count)
+square_labels = square_classification_smart_precedence(square_data, labels, labels_map, piece_count, precedence_list)
 board_state_string = create_board_string(square_labels)
-board_state_string += " w KQkq - 0 0"
+board_state_string += " w KQkq - 0 1"
 board = chess.Board(board_state_string)
-print "Method 7 - Box total smart: "
+print "Method - Box total smart: "
 print board
 
+rospy.init_node('Chess_Baxter')
+right = baxter_interface.Limb('right')
+left = baxter_interface.Limb('left')
+right.set_joint_position_speed(0.8)
+left.set_joint_position_speed(0.8)
+right.move_to_joint_positions(base_right)
+left.move_to_joint_positions(base_left)
+right_gripper = baxter_interface.Gripper('right')
+right_gripper.calibrate()
+right_gripper.set_parameters({"velocity":50.0, 
+						"moving_force":20.0, 
+						"holding_force":10.0,
+						"dead_zone":5.0})
+
+if len(sys.argv) != 1:
+	print "Usage: python main2.py [baxter_colour]"
+	print "colour is 'black' or 'white', corresponds to the colour Baxter is playing as"
+	print "The game must be played from the start, or after your first move if Baxter is black"
+	sys.exit()
+
+baxter_colour = sys.argv[1]
+if baxter_colour == "white":
+	move = 0
+	player_colour = "black"
+elif baxter_colour == "black":
+	wait = raw_input("Make your move then press Enter: ")
+	move = 1
+	player_colour = "white"
+else:
+	print "Usage: python main2.py [baxter_colour]"
+	print "colour is 'black' or 'white', corresponds to the colour Baxter is playing as"
+	print "The game must be played from the start, or after your first move if Baxter is black"
+	sys.exit()
+
+list_of_files = glob.glob('board_images/*')
+imgpath = max(list_of_files, key=os.path.getctime)
+
+heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
+square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
+square_labels = square_classification_smart_precedence(square_data, labels, labels_map, piece_count, precedence_list)
+board_state_string = create_board_string(square_labels)
+board_state_string += "b KQkq - 0 1"
+pre_board = chess.Board(board_state_string)
+print "Board before Baxter move: "
+print pre_board
+
+board = pre_board
+
 game_over = "test"
-move = 0
 while game_over == "":
-	list_of_files = glob.glob('board_images/*')
-	imgpath = max(list_of_files, key=os.path.getctime)
 
-	# heatmap, countmap = classify_board(imgpath)
+	moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
+	post_board = chess.Board(moved_board_state_string)
+	castling = post_board.is_castling(best_move)
 
-	# square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
-	# board_state_string = create_board_string(square_labels)
-	
-	# if move == 0:
-    # 	board_state_string += " w KQkq - 0 0"
+	initial = best_move.uci()[0:2]
+	final = best_move.uci()[2:4]
+	print initial_square, final_square
+	print "Move made: "+best_move.uci()
+	print "Board after Baxter move: "
+	print post_board
 
-	# moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
-	# initial_square = best_move.uci()[0:2]
-	# final_square = best_move.uci()[2:4]
-	# print "Move made: "+best_move.uci()
+	board = post_board
 
-	# #perform_move(initial_square, final_square, position_map)
+	# Perform move with Baxter
+	if castling == False:
+    	pivot = ""
+    	capture = False
+		if board.piece_at(board_square_map[final]) != "":
+    		capture = True
+		if initial not in pivot_points and final not in pivot_points:
+    		pivot = "None"
+    	if initial in pivot_points and final in pivot_points:
+    		pivot = "None"
+		elif initial in pivot_points and final not in pivot_points:	
+			pivot = "To"
+		elif initial not in pivot_points and final in pivot_points:
+    		pivot = "From"
+		perform_move(initial, final, position_map, right, left, gripper, pivot, capture)
+	else:
+    	capture = False
+		pivot = "None"
+		if final in pivot_points:
+    		perform_move(final, "pivot_from", position_map, right, left, gripper, pivot, capture)
+			perform_move(initial, final, position_map, right, left, gripper, pivot, capture)
+			perform_move("pivot_from", initial, position_map, right, left, gripper, pivot, capture)
+		else:
+    		perform_move(final, "pivot_to", position_map, right, left, gripper, pivot, capture)
+			perform_move(initial, final, position_map, right, left, gripper, pivot, capture)
+			perform_move("pivot_to", initial, position_map, right, left, gripper, pivot, capture)
 
-	# board = chess.Board(moved_board_state_string)
-	# if board.is_checkmate():
-	# 	game_over = "Checkmate, I lost."
-	# elif board.is_game_over():
-	# 	game_over = "Draw"
-	# else:
-	# 	game_over = ""
-	heatmap, countmap, center_keypoints = classify_board(imgpath)
+	if post_board.is_checkmate():
+			game_over = "Checkmate, I lost."
+	elif post_board.is_game_over():
+		game_over = "Draw"
+	else:
+		game_over = ""
 
-	square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
-	board_state_string = create_board_string(square_labels)
-	board_state_string += " w KQkq - 0 0"
-	board = chess.Board(board_state_string)
-	print "Method 1 - Center point: "
-	print board
+	wait = raw_input("Make your move then press Enter: ")
 
-	square_labels = label_squares_box_total(center_keypoints, heatmap, countmap, labels, labels_map)
-	board_state_string = create_board_string(square_labels)
-	board_state_string += " w KQkq - 0 0"
-	board = chess.Board(board_state_string)
-	print "Method 2 - Box total: "
-	print board
+	move_made = ""
+	while move_made == "":
+		list_of_files = glob.glob('board_images/*')
+		imgpath = max(list_of_files, key=os.path.getctime)
 
-	square_labels = label_squares_peak(center_keypoints, heatmap, countmap, labels, labels_map)
-	board_state_string = create_board_string(square_labels)
-	board_state_string += " w KQkq - 0 0"
-	board = chess.Board(board_state_string)
-	print "Method 3 - Peak value: "
-	print board
+		heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
+		square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
+		square_labels = square_classification_smart_precedence(square_data, labels, labels_map, piece_count, precedence_list)
+		board_state_string = create_board_string(square_labels)
+		if baxter_colour == "white":
+			board_state_string += "w KQkq - 0 1"
+		else:
+			board_state_string += "b KQkq - 0 1"
+		pre_board = chess.Board(board_state_string)
+		print "Board before Baxter move: "
+		print pre_board
 
-	square_labels = label_squares_center_weighted(center_keypoints, heatmap, countmap, labels, labels_map)
-	board_state_string = create_board_string(square_labels)
-	board_state_string += " w KQkq - 0 0"
-	board = chess.Board(board_state_string)
-	print "Method 4 - Center weighted: "
-	print board
+		if baxter_colour == "white":
+			queenside = post_board.has_queenside_castling_rights(chess.BLACK)
+			kingside = post_board.has_kingside_castling_rights(chess.BLACK)
+		else:
+			queenside = post_board.has_queenside_castling_rights(chess.WHITE)
+			kingside = post_board.has_kingside_castling_rights(chess.WHITE)
+		
+		castling_rights = ""
+		if queenside and kingside:
+			castling_rights = "BOTH"
+		elif queenside:
+			castling_rights = "QUEENSIDE"
+		elif kingside:
+			castling_rights = "KINGSIDE"
 
-	wait = raw_input("Press Enter to continue: ")
+		move_made, piece_count, piece_taken = get_move_made(post_board, pre_board, board_square_map, piece_count, castling_rights, player_colour, letter_count_map)
+		if move_made == "":
+			print "Board state detection error, trying again with lower step_size"
+			stepSize -= 5
+			if stepSize == 0:
+				print "Cannot get board state, exiting"
+				sys.exit()
+			continue
+		if piece_taken:
+			heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
+			square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
+			square_labels = square_classification_smart_precedence(square_data, labels, labels_map, piece_count, precedence_list)
+			board_state_string = create_board_string(square_labels)
+			if baxter_colour == "white":
+				board_state_string += "w KQkq - 0 1"
+			else:
+				board_state_string += "b KQkq - 0 1"
+			pre_board = chess.Board(board_state_string)
+
+			move_made, piece_count, piece_taken = get_move_made(post_board, pre_board, board_square_map, piece_count, castling_rights, player_colour, letter_count_map)
+			if move_made == "":
+				print "Board state detection error, trying again with lower step_size"
+				stepSize -= 5
+				if stepSize == 0:
+					print "Cannot get board state, exiting"
+					sys.exit()
+				continue
+				
+		stepSize = 20
+		board.push(move_made)
+		board_state_string = str(board.fen).split("\'")[1]
+"""
