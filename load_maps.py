@@ -1,5 +1,6 @@
 
 def create_constants():
+    labels_path = "labels.txt"
     labels = []
     with open(labels_path) as image_labels:
         for line in image_labels:
@@ -10,7 +11,7 @@ def create_constants():
                 "empty_square": "square", "white_pawn": "PAWN", "white_knight": "KNIGHT", "white_bishop": "BISHOP", "white_king": "KING", "white_queen": "QUEEN", "white_rook": "ROOK"}
     piece_count = {"black_pawn": 8, "black_knight": 2, "black_bishop": 2, "black_king": 1, "black_queen": 1, "black_rook": 2,
                 "empty_square": 32, "white_pawn": 8, "white_knight": 2, "white_bishop": 2, "white_king": 1, "white_queen": 1, "white_rook": 2}
-    letter_count_map = {"p": "black_pawn", "n": "black_knight", "b": "black_bishop", "k": "black_king", "q": "black_queen", "r": "black_rook"
+    letter_count_map = {"p": "black_pawn", "n": "black_knight", "b": "black_bishop", "k": "black_king", "q": "black_queen", "r": "black_rook",
                         ".": "empty_square", "P": "white_pawn", "B": "white_bishop", "N": "white_knight", "K": "white_king", "Q": "white_queen", "R": "white_rook"}
     # For testing
     # piece_count = {"black_pawn": 0, "black_knight": 0, "black_bishop": 0, "black_king": 0, "black_queen": 1, "black_rook": 0,
@@ -81,7 +82,7 @@ def create_constants():
     precedence_list = ["empty_square", "black_king", "black_queen", "white_king", "white_queen", "white_pawn", "black_pawn", 
 						"black_knight", "white_bishop", "white_knight", "white_rook", "black_rook", "black_bishop"]
 	
-	precedence_list = ["empty_square", "black_king", "black_queen", "white_king", "white_queen", "black_pawn", "black_knight", "black_rook", 
-						"black_bishop", "white_knight", "white_bishop", "white_pawn", "white_rook"]
+	# precedence_list = ["empty_square", "black_king", "black_queen", "white_king", "white_queen", "black_pawn", "black_knight", 
+    #                     "black_rook", "black_bishop", "white_knight", "white_bishop", "white_pawn", "white_rook"]
 
     return labels, labels_map, piece_count, board_square_map, position_map, base_right, base_left, precedence_list, letter_count_map

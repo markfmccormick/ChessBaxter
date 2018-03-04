@@ -163,24 +163,67 @@ def square_classification_smart_precedence(square_data, labels, labels_map, piec
 	return square_labels
 
 def apply_scaling(board, square_data, labels, labels_map, board_square_map):
-	square_data_ordered = np.reshape(square_data, (8,8))
+	test = []
+	for i in range(len(square_data)):
+		test.append(int(square_data[i][3]))
+	print np.reshape(test, (8,8))
+
+	square_data_ordered = np.reshape(square_data, (8,8,13))
 	for i in range(len(square_data_ordered)/2):
-    	copy = list(square_data_ordered[i])
+		copy = list(square_data_ordered[i])
 		square_data_ordered[i] = list(square_data_ordered[-i-1])
 		square_data_ordered[-i-1] = list(copy)
-	square_data_ordered = np.reshape(square_data_ordered, 64)
+	square_data_ordered = np.reshape(square_data_ordered, (64,13))
 	
 	for i in range(len(square_data_ordered)):
-    	piece = letter_count_map[str(board.piece_at(square_data_ordered[i]))]
-		square = board_square_map.keys()[board_square_map.values.index(square_data_ordered[i])]
+		if board.piece_at(i) != None:
+			piece = letter_count_map[str(board.piece_at(i))]
+		else:
+			piece = "empty_square"
+		square = board_square_map.keys()[board_square_map.values().index(i)]
 
-		square_data[square_data_ordered[i]][labels.index(piece)] *= 10
+		square_data_ordered[i][labels.index(piece)] *= 3
 
 		for move in board.legal_moves:
-    		move = move.uci()
+			move = move.uci()
 			if move[0:2] == square:
-    			index = board_square_map[move[2:4]]
-				square_data[square_data_ordered[i]][index] *= 5
+				index = board_square_map[move[2:4]]
+				square_data_ordered[index][labels.index(piece)] *= 2
+
+	# square_data_ordered = np.reshape(square_data_ordered, (8,8,13))
+	# for i in range(len(square_data_ordered)/2,0,-1):
+	# 	copy = list(square_data_ordered[i])
+	# 	square_data_ordered[i] = list(square_data_ordered[-i-1])
+	# 	square_data_ordered[-i-1] = list(copy)
+	# square_data_ordered = np.reshape(square_data_ordered, (64,13))
+
+	# start = 0
+	# end = 7
+	# square_data_ordered = np.reshape(square_data_ordered, (8,8,13))
+	# for i in range(4):
+	# 	copy = list(square_data_ordered[start])
+	# 	square_data_ordered[start] = list(square_data_ordered[end])
+	# 	square_data_ordered[end] = list(copy)
+	# 	start += 1
+	# 	end -= 1
+	# square_data_ordered = np.reshape(square_data_ordered, (64,13))
+
+	# square_data_ordered2 = np.reshape(square_data_ordered, (8,8,13))
+	# for i in range(len(square_data_ordered2)/2):
+	# 	copy = list(square_data_ordered2[i])
+	# 	square_data_ordered2[i] = list(square_data_ordered2[-i-1])
+	# 	square_data_ordered2[-i-1] = list(copy)
+	# square_data_ordered2 = np.reshape(square_data_ordered2, (64,13))
+
+	square_data = square_data_ordered
+
+	test = []
+	for i in range(len(square_data)):
+		test.append(int(square_data[i][3]))
+	print np.reshape(test, (8,8))
+
+
+	return square_data
 	
 # Gets the move made by the user
 # Assumes perfect board state detection, which I don't have
@@ -193,7 +236,7 @@ def get_move_made(pre_board, post_board, board_square_map, piece_count, castling
 		if castling_rights == "QUEENSIDE":
 			if str(post_board.piece_at(board_square_map["c1"])) == "K":
 				return "e1c1", piece_count, piece_taken
-		elif: castling_rights == "KINGSIDE":
+		elif castling_rights == "KINGSIDE":
 			if str(post_board.piece_at(board_square_map["g1"])) == "K":
 				return "e1g1", piece_count, piece_taken
 		elif castling_rights == "BOTH":
@@ -205,7 +248,7 @@ def get_move_made(pre_board, post_board, board_square_map, piece_count, castling
 		if castling_rights == "QUEENSIDE":
 			if str(post_board.piece_at(board_square_map["c8"])) == "k":
 				return "e8c8", piece_count, piece_taken
-		elif: castling_rights == "KINGSIDE":
+		elif castling_rights == "KINGSIDE":
 			if str(post_board.piece_at(board_square_map["g8"])) == "k":
 				return "e8g8", piece_count, piece_taken
 		elif castling_rights == "BOTH":
@@ -253,13 +296,14 @@ heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
 show_naive_classification(center_keypoints, heatmap, countmap, labels, labels_map)
 
 square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
+square_data = apply_scaling(chess.Board(), square_data, labels, labels_map, board_square_map)
 square_labels = square_classification_smart_precedence(square_data, labels, labels_map, piece_count, precedence_list)
 board_state_string = create_board_string(square_labels)
 board_state_string += " w KQkq - 0 1"
 board = chess.Board(board_state_string)
 print "Method - Box total smart: "
 print board
-
+"""
 rospy.init_node('Chess_Baxter')
 right = baxter_interface.Limb('right')
 left = baxter_interface.Limb('left')

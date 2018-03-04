@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 import chess
 from create_board_string import create_board_string
 
@@ -38,6 +39,7 @@ def show_naive_classification(center_keypoints, heatmap, countmap, labels, label
     print "Method - Box total threshold: "
     print board
 
+"""
     img = cv2.imread(imgpath)
     img = img[crop_points["bottom"]:crop_points["top"],crop_points["left"]:crop_points["right"]]
     imgpath = "cropped_image.jpeg"
@@ -55,7 +57,7 @@ def show_naive_classification(center_keypoints, heatmap, countmap, labels, label
     print "Method - Window around center: "
     print board
 
-    """
+
     square_labels = square_classification_smart_zeroing(center_keypoints, heatmap, countmap, labels, labels_map, piece_count)
     board_state_string = create_board_string(square_labels)
     board_state_string += " w KQkq - 0 0"
