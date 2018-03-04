@@ -162,6 +162,26 @@ def square_classification_smart_precedence(square_data, labels, labels_map, piec
 
 	return square_labels
 
+def apply_scaling(board, square_data, labels, labels_map, board_square_map):
+	square_data_ordered = np.reshape(square_data, (8,8))
+	for i in range(len(square_data_ordered)/2):
+    	copy = list(square_data_ordered[i])
+		square_data_ordered[i] = list(square_data_ordered[-i-1])
+		square_data_ordered[-i-1] = list(copy)
+	square_data_ordered = np.reshape(square_data_ordered, 64)
+	
+	for i in range(len(square_data_ordered)):
+    	piece = letter_count_map[str(board.piece_at(square_data_ordered[i]))]
+		square = board_square_map.keys()[board_square_map.values.index(square_data_ordered[i])]
+
+		square_data[square_data_ordered[i]][labels.index(piece)] *= 10
+
+		for move in board.legal_moves:
+    		move = move.uci()
+			if move[0:2] == square:
+    			index = board_square_map[move[2:4]]
+				square_data[square_data_ordered[i]][index] *= 5
+	
 # Gets the move made by the user
 # Assumes perfect board state detection, which I don't have
 def get_move_made(pre_board, post_board, board_square_map, piece_count, castling_rights, player_colour, letter_count_map):
