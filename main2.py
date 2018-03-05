@@ -215,6 +215,13 @@ def apply_scaling(board, square_data, labels, labels_map, board_square_map):
 	# 	square_data_ordered2[-i-1] = list(copy)
 	# square_data_ordered2 = np.reshape(square_data_ordered2, (64,13))
 
+	square_data_ordered2 = np.reshape(square_data_ordered, (8,8,13))
+	for i in range(len(square_data_ordered2)/2):
+		copy = list(square_data_ordered2[i])
+		square_data_ordered2[i] = list(square_data_ordered2[-i-1])
+		square_data_ordered2[-i-1] = list(copy)
+	square_data_ordered = np.reshape(square_data_ordered2, (64,13))
+
 	square_data = square_data_ordered
 
 	test = []
