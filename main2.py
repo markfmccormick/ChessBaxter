@@ -184,42 +184,19 @@ def apply_scaling(board, square_data, labels, labels_map, board_square_map):
 
 		square_data_ordered[i][labels.index(piece)] *= 3
 
+		"""
 		for move in board.legal_moves:
 			move = move.uci()
 			if move[0:2] == square:
 				index = board_square_map[move[2:4]]
 				square_data_ordered[index][labels.index(piece)] *= 2
-
-	# square_data_ordered = np.reshape(square_data_ordered, (8,8,13))
-	# for i in range(len(square_data_ordered)/2,0,-1):
-	# 	copy = list(square_data_ordered[i])
-	# 	square_data_ordered[i] = list(square_data_ordered[-i-1])
-	# 	square_data_ordered[-i-1] = list(copy)
-	# square_data_ordered = np.reshape(square_data_ordered, (64,13))
-
-	# start = 0
-	# end = 7
-	# square_data_ordered = np.reshape(square_data_ordered, (8,8,13))
-	# for i in range(4):
-	# 	copy = list(square_data_ordered[start])
-	# 	square_data_ordered[start] = list(square_data_ordered[end])
-	# 	square_data_ordered[end] = list(copy)
-	# 	start += 1
-	# 	end -= 1
-	# square_data_ordered = np.reshape(square_data_ordered, (64,13))
-
-	# square_data_ordered2 = np.reshape(square_data_ordered, (8,8,13))
-	# for i in range(len(square_data_ordered2)/2):
-	# 	copy = list(square_data_ordered2[i])
-	# 	square_data_ordered2[i] = list(square_data_ordered2[-i-1])
-	# 	square_data_ordered2[-i-1] = list(copy)
-	# square_data_ordered2 = np.reshape(square_data_ordered2, (64,13))
+		"""
 
 	square_data_ordered2 = np.reshape(square_data_ordered, (8,8,13))
 	for i in range(len(square_data_ordered2)/2):
-		copy = list(square_data_ordered2[i])
-		square_data_ordered2[i] = list(square_data_ordered2[-i-1])
-		square_data_ordered2[-i-1] = list(copy)
+		copy = list([list(i) for i in test[i]])
+		square_data_ordered2[i] = list([list(i) for i in square_data_ordered2[-i-1]])
+		square_data_ordered2[-i-1] = list([list(i) for i in copy])
 	square_data_ordered = np.reshape(square_data_ordered2, (64,13))
 
 	square_data = square_data_ordered
@@ -288,8 +265,8 @@ labels_path = "labels.txt"
 imgpath = "pictures/5.jpeg"
 # imgpath = "pictures/queen/1.jpeg"
 
-list_of_files = glob.glob('board_images/*')
-imgpath = max(list_of_files, key=os.path.getctime)
+# list_of_files = glob.glob('board_images/*')
+# imgpath = max(list_of_files, key=os.path.getctime)
 
 model = Model(model_path)
 
@@ -306,7 +283,7 @@ heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
 show_naive_classification(center_keypoints, heatmap, countmap, labels, labels_map)
 
 square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
-# square_data = apply_scaling(chess.Board(), square_data, labels, labels_map, board_square_map)
+square_data = apply_scaling(chess.Board(), square_data, labels, labels_map, board_square_map)
 square_labels = square_classification_smart_precedence(square_data, labels, labels_map, piece_count, precedence_list)
 board_state_string = create_board_string(square_labels)
 board_state_string += " w KQkq - 0 1"
