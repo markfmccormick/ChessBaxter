@@ -126,7 +126,7 @@ def classify_board(imgpath):
 				if heatmap[y][x][z] <= 1.5:
 					heatmap[y][x][z] = 0
 
-	visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
+	# visualise_heatmap(img, heatmap, countmap, labels, "heatmaps/")
 
 	return heatmap, countmap, center_keypoints, crop_points
 
@@ -162,18 +162,24 @@ def square_classification_smart_precedence(square_data, labels, labels_map, piec
 
 	return square_labels
 
-def apply_scaling(board, square_data, labels, labels_map, board_square_map):
+def scaling_debug(square_data):
 	test = []
 	for i in range(len(square_data)):
-		test.append(int(square_data[i][3]))
+		test.append(int(square_data[i][5]))
 	print np.reshape(test, (8,8))
 
+def apply_scaling(board, square_data, labels, labels_map, board_square_map):
+	
+	# scaling_debug(square_data)
+
 	square_data_ordered = np.reshape(square_data, (8,8,13))
-	for i in range(len(square_data_ordered)/2):
-		copy = list(square_data_ordered[i])
-		square_data_ordered[i] = list(square_data_ordered[-i-1])
-		square_data_ordered[-i-1] = list(copy)
+	square_data_ordered = np.reshape(square_data_ordered, (8,104))
+	square_data_ordered = np.flipud(square_data_ordered)
+	square_data_ordered = np.reshape(square_data_ordered, (8,8,13))
+
 	square_data_ordered = np.reshape(square_data_ordered, (64,13))
+
+	# scaling_debug(square_data)
 	
 	for i in range(len(square_data_ordered)):
 		if board.piece_at(i) != None:
@@ -182,30 +188,22 @@ def apply_scaling(board, square_data, labels, labels_map, board_square_map):
 			piece = "empty_square"
 		square = board_square_map.keys()[board_square_map.values().index(i)]
 
-		square_data_ordered[i][labels.index(piece)] *= 3
+		square_data_ordered[i][labels.index(piece)] *= 10
 
-		"""
 		for move in board.legal_moves:
 			move = move.uci()
 			if move[0:2] == square:
 				index = board_square_map[move[2:4]]
-				square_data_ordered[index][labels.index(piece)] *= 2
-		"""
+				square_data_ordered[index][labels.index(piece)] *= 5
 
-	square_data_ordered2 = np.reshape(square_data_ordered, (8,8,13))
-	for i in range(len(square_data_ordered2)/2):
-		copy = [list(j) for j in square_data_ordered2[i]]
-		square_data_ordered2[i] = [list(j) for j in square_data_ordered2[-i-1]]
-		square_data_ordered2[-i-1] = [list(j) for j in copy]
-	square_data_ordered = np.reshape(square_data_ordered2, (64,13))
+	square_data_ordered = np.reshape(square_data_ordered, (8,8,13))
+	square_data_ordered = np.reshape(square_data_ordered, (8,104))
+	square_data_ordered = np.flipud(square_data_ordered)
+	square_data_ordered = np.reshape(square_data_ordered, (8,8,13))
 
-	square_data = square_data_ordered
+	square_data = np.reshape(square_data_ordered, (64,13))
 
-	test = []
-	for i in range(len(square_data)):
-		test.append(int(square_data[i][3]))
-	print np.reshape(test, (8,8))
-
+	# scaling_debug(square_data)
 
 	return square_data
 	
@@ -262,7 +260,7 @@ model_path = "models/inception22.pb"
 labels_path = "labels.txt"
 # labels_path = "inception17.txt"
 # imgpath = "test_images/camera_image2.jpeg"
-imgpath = "pictures/5.jpeg"
+imgpath = "pictures/3.jpeg"
 # imgpath = "pictures/queen/1.jpeg"
 
 # list_of_files = glob.glob('board_images/*')
