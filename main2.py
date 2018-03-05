@@ -194,9 +194,9 @@ def apply_scaling(board, square_data, labels, labels_map, board_square_map):
 
 	square_data_ordered2 = np.reshape(square_data_ordered, (8,8,13))
 	for i in range(len(square_data_ordered2)/2):
-		copy = [list(i) for i in square_data_ordered2[i]]
-		square_data_ordered2[i] = [list(i) for i in square_data_ordered2[-i-1]]
-		square_data_ordered2[-i-1] = [list(i) for i in copy]
+		copy = [list(j) for j in square_data_ordered2[i]]
+		square_data_ordered2[i] = [list(j) for j in square_data_ordered2[-i-1]]
+		square_data_ordered2[-i-1] = [list(j) for j in copy]
 	square_data_ordered = np.reshape(square_data_ordered2, (64,13))
 
 	square_data = square_data_ordered
