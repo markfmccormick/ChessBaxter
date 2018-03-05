@@ -281,11 +281,14 @@ labels_path = "labels.txt"
 imgpath = "pictures/5.jpeg"
 # imgpath = "pictures/queen/1.jpeg"
 
+list_of_files = glob.glob('board_images/*')
+imgpath = max(list_of_files, key=os.path.getctime)
+
 model = Model(model_path)
 
 window_y = 100
 window_x = 100
-stepSize = 10
+stepSize = 20
 
 heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
 
@@ -296,7 +299,7 @@ heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
 show_naive_classification(center_keypoints, heatmap, countmap, labels, labels_map)
 
 square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
-square_data = apply_scaling(chess.Board(), square_data, labels, labels_map, board_square_map)
+# square_data = apply_scaling(chess.Board(), square_data, labels, labels_map, board_square_map)
 square_labels = square_classification_smart_precedence(square_data, labels, labels_map, piece_count, precedence_list)
 board_state_string = create_board_string(square_labels)
 board_state_string += " w KQkq - 0 1"
@@ -372,7 +375,7 @@ while game_over == "":
 	if castling == False:
     	pivot = ""
     	capture = False
-		if board.piece_at(board_square_map[final]) != "":
+		if board.piece_at(board_square_map[final]) != None:
     		capture = True
 		if initial not in pivot_points and final not in pivot_points:
     		pivot = "None"

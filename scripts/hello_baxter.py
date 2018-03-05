@@ -131,7 +131,7 @@ pivot_points = ["a8", "a7", ]
 
 #s0,s1,e0,e1,w0,w1,w2
 #position = raw_input("Enter a square: ")
-position = "b8"
+position = "h1"
 print position_map[position]["above"]
 print position_map[position]["on"]
 right.move_to_joint_positions(position_map[position]["above"])
@@ -141,17 +141,17 @@ right_gripper.close()
 time.sleep(0.25)
 right.move_to_joint_positions(position_map[position]["above"])
 
-right.move_to_joint_positions(pivot_from_above)
-right.move_to_joint_positions(pivot_from_on)
-right_gripper.open()
-right.move_to_joint_positions(pivot_from_above)
-right.move_to_joint_positions(pivot_to_above)
-right.move_to_joint_positions(pivot_to_on)
-right_gripper.close()
-time.sleep(0.25)
-right.move_to_joint_positions(pivot_to_above)
+# right.move_to_joint_positions(pivot_from_above)
+# right.move_to_joint_positions(pivot_from_on)
+# right_gripper.open()
+# right.move_to_joint_positions(pivot_from_above)
+# right.move_to_joint_positions(pivot_to_above)
+# right.move_to_joint_positions(pivot_to_on)
+# right_gripper.close()
+# time.sleep(0.25)
+# right.move_to_joint_positions(pivot_to_above)
 
-position = "g3"
+# position = "g3"
 right.move_to_joint_positions(position_map[position]["above"])
 right.move_to_joint_positions(position_map[position]["on"])
 right_gripper.open()

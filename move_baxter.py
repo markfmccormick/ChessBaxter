@@ -13,6 +13,8 @@ def perform_move(initial, final, position_map, right, left, gripper, pivot, capt
 	    'left_e0': -1.19, 'left_e1': 1.94, 
 	    'left_w0': 0.67, 'left_w1': 1.03, 'left_w2': -0.50}
 
+    print "Capture: ", capture
+
     gripper.open()
     if capture == True:
         move_piece(final, "capture", position_map, right, gripper)

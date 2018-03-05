@@ -28,7 +28,7 @@ board_square_map= {"a1":0 ,"a2":1, "a3":2, "a4":3, "a5":4, "a6":5, "a7":6, "a8":
 					"g1":48 ,"g2":49, "g3":50, "g4":51, "g5":52, "g6":53, "g7":54, "g8":55, 
 					"h1":56 ,"h2":57, "h3":58, "h4":59, "h5":60, "h6":61, "h7":62, "h8":63}
 
-pivot_points = ["a8", "a7", ]
+pivot_points = ["a8", "a7", "b8", "b7", "c8", "d8"]
 
 board_state_string = create_board_string(square_labels)
 board_state_string += " w KQkq - 0 0"
@@ -69,10 +69,10 @@ position_map["pivot_to"] = {"above": {'right_s0': 0.7, 'right_s1': -0.13,
 	    								'right_e0': 0.0, 'right_e1': 0.0,
 										'right_w0': 0.0, 'right_w1': 1.2, 'right_w2': 0.0}}
 
-position_map["capture"] = {"above": {'right_s0': 0.85, 'right_s1': -0.13,
+position_map["capture"] = {"above": {'right_s0': 0.55, 'right_s1': -0.13,
 	    								'right_e0': 0.0, 'right_e1': 0.0,
 	    								'right_w0': 0.0, 'right_w1': 1.5, 'right_w2': 0.0}, 
-								"on": {'right_s0': 0.85, 'right_s1': 0.165,
+								"on": {'right_s0': 0.55, 'right_s1': 0.165,
 	    								'right_e0': 0.0, 'right_e1': 0.0,
 	    								'right_w0': 0.0, 'right_w1': 1.2, 'right_w2': 0.0}}
 
@@ -90,51 +90,65 @@ right.set_joint_position_speed(0.8)
 left.set_joint_position_speed(0.8)
 right.move_to_joint_positions(base_right)
 left.move_to_joint_positions(base_left)
-right_gripper = baxter_interface.Gripper('right')
-right_gripper.calibrate()
-right_gripper.set_parameters({"velocity":50.0, 
+gripper = baxter_interface.Gripper('right')
+gripper.calibrate()
+gripper.set_parameters({"velocity":50.0, 
 						"moving_force":20.0, 
 						"holding_force":10.0,
 						"dead_zone":5.0})
-
+capture = False
+board2 = chess.Board()
 while game_over == "":
 	moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
 	board = chess.Board(moved_board_state_string)
-	castling = board.is_castling(best_move)
+	# castling = board.is_castling(best_move)
+
+	print "Castling: " + str(castling)
 
 	initial = best_move.uci()[0:2]
 	final = best_move.uci()[2:4]
-	print initial_square, final_square
-	print "Move made: "+best_move.uci()
-	print "Board after move: "
-	print board
 
+	castling = False
+	if str(board.piece_at(initial)) == "K" or str(board.piece_at(initial)) == "k":
+		if initial == "e1":
+			if final == "c1" or final == "g1":
+				castling = True
+		elif initial == "e8":
+			if final == "c8" or final == "g8":
+				castling = True
+
+	print initial, final
+	print "Move made: "+best_move.uci()
+	# print "Board after move: "
+	# print board
 	# Perform move with Baxter
 	if castling == False:
-    	pivot = ""
-    	capture = False
-		if board.piece_at(board_square_map[final]) != "":
-    		capture = True
+		pivot = ""
+		capture = False
+		if board2.piece_at(board_square_map[final]) != None:
+			print "Check: ", board2.piece_at(board_square_map[final])
+			capture = True
 		if initial not in pivot_points and final not in pivot_points:
-    		pivot = "None"
-    	if initial in pivot_points and final in pivot_points:
-    		pivot = "None"
+			pivot = "None"
+		if initial in pivot_points and final in pivot_points:
+			pivot = "None"
 		elif initial in pivot_points and final not in pivot_points:	
-			pivot = "To"
+			pivot = "From"
 		elif initial not in pivot_points and final in pivot_points:
-    		pivot = "From"
+			pivot = "To"
 		perform_move(initial, final, position_map, right, left, gripper, pivot, capture)
 	else:
-    	capture = False
+		capture = False
 		pivot = "None"
-		if final in pivot_points:
-    		perform_move(final, "pivot_from", position_map, right, left, gripper, pivot, capture)
-			perform_move(initial, final, position_map, right, left, gripper, pivot, capture)
-			perform_move("pivot_from", initial, position_map, right, left, gripper, pivot, capture)
-		else:
-    		perform_move(final, "pivot_to", position_map, right, left, gripper, pivot, capture)
-			perform_move(initial, final, position_map, right, left, gripper, pivot, capture)
-			perform_move("pivot_to", initial, position_map, right, left, gripper, pivot, capture)
+		perform_move(initial, final, position_map, right, left, gripper, pivot, capture)
+		if final == "g1":
+			perform_move("h1", "f1", position_map, right, left, gripper, pivot, capture)
+		elif final == "c1":
+			perform_move("a1", "d1", position_map, right, left, gripper, pivot, capture)
+		elif final == "g8":
+			perform_move("h8", "f8", position_map, right, left, gripper, pivot, capture)
+		elif final == "c8":
+			perform_move("a8", "d8", position_map, right, left, gripper, pivot, capture)
 
 	if board.is_checkmate():
 			game_over = "Checkmate, I lost."
@@ -144,6 +158,7 @@ while game_over == "":
 		game_over = ""
 	
 	board_state_string = moved_board_state_string
+	board2 = chess.Board(board_state_string)
 
 	"""
 	// For user inputed moves
