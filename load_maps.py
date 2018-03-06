@@ -28,9 +28,7 @@ def create_constants():
     # labels_map = {"pawn": "pawn", "knight": "knight", "bishop": "bishop", "king": "king", "queen": "queen", "rook": "rook", "empty_square": "square"}
 
     position_map = {}
-    right_joint_labels = ['right_s0', 'right_s1',
-                    'right_e0', 'right_e1'
-                    'right_w0', 'right_w1', 'right_w2']
+    right_joint_labels = ['right_s0', 'right_s1', 'right_e0', 'right_e1', 'right_w0', 'right_w1', 'right_w2']
     with open("square_positions.txt") as position_labels:
         for line in position_labels:
             square_positions = {}
@@ -54,22 +52,22 @@ def create_constants():
     position_map["pivot_from"] = {"above": {'right_s0': 0.7, 'right_s1': -0.3,
                                             'right_e0': 0.0, 'right_e1': 0.7,
                                             'right_w0': 0.0, 'right_w1': 0.5, 'right_w2': 0.0}, 
-                                    "on": {'right_s0': 0.7, 'right_s1': -0.29,
-                                        'right_e0': 0.0, 'right_e1': 1.2,
-                                        'right_w0': 0.0, 'right_w1': 0.0, 'right_w2': 0.0}}
+								"on": {'right_s0': 0.7, 'right_s1': -0.29,
+	    							'right_e0': 0.0, 'right_e1': 1.2,
+	    							'right_w0': 0.0, 'right_w1': 0.0, 'right_w2': 0.0}}
     position_map["pivot_to"] = {"above": {'right_s0': 0.7, 'right_s1': -0.13,
-                                            'right_e0': 0.0, 'right_e1': 0.0,
-                                            'right_w0': 0.0, 'right_w1': 1.5, 'right_w2': 0.0}, 
-                                    "on": {'right_s0': 0.7, 'right_s1': 0.165,
-                                            'right_e0': 0.0, 'right_e1': 0.0,
-                                            'right_w0': 0.0, 'right_w1': 1.2, 'right_w2': 0.0}}
+	    							'right_e0': 0.0, 'right_e1': 0.0,
+	    							'right_w0': 0.0, 'right_w1': 1.5, 'right_w2': 0.0}, 
+								"on": {'right_s0': 0.7, 'right_s1': 0.165,
+	    								'right_e0': 0.0, 'right_e1': 0.0,
+										'right_w0': 0.0, 'right_w1': 1.2, 'right_w2': 0.0}}
 
-    position_map["capture"] = {"above": {'right_s0': 0.85, 'right_s1': -0.13,
-                                            'right_e0': 0.0, 'right_e1': 0.0,
-                                            'right_w0': 0.0, 'right_w1': 1.5, 'right_w2': 0.0}, 
-                                    "on": {'right_s0': 0.85, 'right_s1': 0.165,
-                                            'right_e0': 0.0, 'right_e1': 0.0,
-                                            'right_w0': 0.0, 'right_w1': 1.2, 'right_w2': 0.0}}
+    position_map["capture"] = {"above": {'right_s0': 0.55, 'right_s1': -0.13,
+	    							'right_e0': 0.0, 'right_e1': 0.0,
+	    							'right_w0': 0.0, 'right_w1': 1.5, 'right_w2': 0.0}, 
+								"on": {'right_s0': 0.55, 'right_s1': 0.165,
+	    								'right_e0': 0.0, 'right_e1': 0.0,
+	    								'right_w0': 0.0, 'right_w1': 1.2, 'right_w2': 0.0}}
 
 
     base_right = {'right_s0': 0.08, 'right_s1': -1.0, 

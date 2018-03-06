@@ -131,7 +131,7 @@ pivot_points = ["a8", "a7", ]
 
 #s0,s1,e0,e1,w0,w1,w2
 #position = raw_input("Enter a square: ")
-position = "h1"
+position = "a8"
 print position_map[position]["above"]
 print position_map[position]["on"]
 right.move_to_joint_positions(position_map[position]["above"])
