@@ -60,7 +60,7 @@ def create_constants():
 	    							'right_w0': 0.0, 'right_w1': 1.5, 'right_w2': 0.0}, 
 								"on": {'right_s0': 0.7, 'right_s1': 0.165,
 	    								'right_e0': 0.0, 'right_e1': 0.0,
-										'right_w0': 0.0, 'right_w1': 1.2, 'right_w2': 0.0}}
+										'right_w0': 0.0, 'right_w1': 1.15, 'right_w2': 0.0}}
 
     position_map["capture"] = {"above": {'right_s0': 0.55, 'right_s1': -0.13,
 	    							'right_e0': 0.0, 'right_e1': 0.0,

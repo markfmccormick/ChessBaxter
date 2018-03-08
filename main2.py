@@ -190,13 +190,13 @@ def apply_scaling(board, square_data, labels, labels_map, board_square_map):
 			piece = "empty_square"
 		square = board_square_map.keys()[board_square_map.values().index(i)]
 
-		square_data_ordered[i][labels.index(piece)] *= 30
+		square_data_ordered[i][labels.index(piece)] *= 9
 
 		for move in board.legal_moves:
 			move = move.uci()
 			if move[0:2] == square:
 				index = board_square_map[move[2:4]]
-				square_data_ordered[index][labels.index(piece)] *= 20
+				square_data_ordered[index][labels.index(piece)] *= 6
 
 	square_data_ordered = np.reshape(square_data_ordered, (8,8,13))
 	square_data_ordered = np.reshape(square_data_ordered, (8,104))
@@ -447,12 +447,13 @@ while game_over == "":
 		move_made, piece_count, piece_taken = get_move_made(post_board, pre_board, board_square_map, piece_count, castling_rights, player_colour, letter_count_map)
 		if move_made == "":
 			print "Board state detection error, trying again with lower step_size"
-			stepSize -= 3
+			stepSize -= 2
 			if stepSize == 0:
 				print "Cannot get board state, exiting"
 				sys.exit()
 			continue
 		if piece_taken:
+			print "Piece taken, reclassifying board...."
 			heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
 			square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
 			square_data = apply_scaling(board, square_data, labels, labels_map, board_square_map)
@@ -467,7 +468,7 @@ while game_over == "":
 			move_made, piece_count, piece_taken = get_move_made(post_board, pre_board, board_square_map, piece_count, castling_rights, player_colour, letter_count_map)
 			if move_made == "":
 				print "Board state detection error, trying again with lower step_size"
-				stepSize -= 5
+				stepSize -= 2
 				if stepSize == 0:
 					print "Cannot get board state, exiting"
 					sys.exit()

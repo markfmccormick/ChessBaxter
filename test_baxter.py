@@ -67,7 +67,7 @@ position_map["pivot_to"] = {"above": {'right_s0': 0.7, 'right_s1': -0.13,
 	    								'right_w0': 0.0, 'right_w1': 1.5, 'right_w2': 0.0}, 
 								"on": {'right_s0': 0.7, 'right_s1': 0.165,
 	    								'right_e0': 0.0, 'right_e1': 0.0,
-										'right_w0': 0.0, 'right_w1': 1.2, 'right_w2': 0.0}}
+										'right_w0': 0.0, 'right_w1': 1.15, 'right_w2': 0.0}}
 
 position_map["capture"] = {"above": {'right_s0': 0.55, 'right_s1': -0.13,
 	    								'right_e0': 0.0, 'right_e1': 0.0,
@@ -118,13 +118,15 @@ while game_over == "":
 	final = best_move.uci()[2:4]
 
 	castling = False
-	if str(board.piece_at(board_square_map[initial])) == "K" or str(board.piece_at(board_square_map[initial])) == "k":
-		if initial == "e1":
+	if initial == "e1":
+		if str(board.piece_at(board_square_map[initial])) == "K":
 			if final == "c1" or final == "g1":
 				castling = True
-		elif initial == "e8":
+	elif initial == "e8":
+		if str(board.piece_at(board_square_map[initial])) == "k":
 			if final == "c8" or final == "g8":
 				castling = True
+
 
 	print initial, final
 	print "Move made: "+best_move.uci()

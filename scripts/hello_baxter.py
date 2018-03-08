@@ -104,7 +104,7 @@ right_gripper.set_parameters({"velocity":50.0,
 
 position_map = {}
 right_joint_labels = ['right_s0', 'right_s1', 'right_e0', 'right_e1', 'right_w0', 'right_w1', 'right_w2']
-with open("square_positions.txt") as position_labels:
+with open("../square_positions.txt") as position_labels:
 	for line in position_labels:
 		square_positions = {}
 		joint_positions1 = {}
@@ -131,7 +131,7 @@ pivot_points = ["a8", "a7", ]
 
 #s0,s1,e0,e1,w0,w1,w2
 #position = raw_input("Enter a square: ")
-position = "a8"
+position = "d5"
 print position_map[position]["above"]
 print position_map[position]["on"]
 right.move_to_joint_positions(position_map[position]["above"])
@@ -151,7 +151,7 @@ right.move_to_joint_positions(position_map[position]["above"])
 # time.sleep(0.25)
 # right.move_to_joint_positions(pivot_to_above)
 
-# position = "g3"
+position = "d7"
 right.move_to_joint_positions(position_map[position]["above"])
 right.move_to_joint_positions(position_map[position]["on"])
 right_gripper.open()
