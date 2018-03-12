@@ -27,7 +27,7 @@ def get_keypoints(imgpath):
 
     MIN_MATCH_COUNT = 10
 
-    img1 = cv2.imread('kinect_images_new/new_chessboard.png',0)  #query images
+    img1 = cv2.imread('chessboard.png',0)  #query images
     img2 = cv2.imread(imgpath, 0)
 
     # Initiate SIFT detector
@@ -69,7 +69,7 @@ def get_keypoints(imgpath):
         matchesMask = None
 
     keypoints = [[]]
-    with open('chessboard_keypoints.txt') as chessboard_keypoints:
+    with open('data/chessboard_keypoints.txt') as chessboard_keypoints:
         for line in chessboard_keypoints:
             line = line.strip('\n')
             line = line.split(',')
@@ -79,7 +79,7 @@ def get_keypoints(imgpath):
     square_keypoints = cv2.perspectiveTransform(keypoints, M)
 
     keypoints = [[]]
-    with open('chessboard_keypoints_center.txt') as chessboard_keypoints:
+    with open('data/chessboard_keypoints_center.txt') as chessboard_keypoints:
         for line in chessboard_keypoints:
             line = line.strip('\n')
             line = line.split(',')

@@ -1,6 +1,6 @@
 
 def create_constants():
-    labels_path = "labels.txt"
+    labels_path = "data/labels.txt"
     labels = []
     with open(labels_path) as image_labels:
         for line in image_labels:
@@ -29,7 +29,7 @@ def create_constants():
 
     position_map = {}
     right_joint_labels = ['right_s0', 'right_s1', 'right_e0', 'right_e1', 'right_w0', 'right_w1', 'right_w2']
-    with open("square_positions.txt") as position_labels:
+    with open("data/square_positions.txt") as position_labels:
         for line in position_labels:
             square_positions = {}
             joint_positions1 = {}

@@ -260,10 +260,10 @@ def get_move_made(pre_board, post_board, board_square_map, piece_count, castling
 labels, labels_map, piece_count, board_square_map, position_map, base_right, base_left, precedence_list, letter_count_map = create_constants()
 # model_path = "models/inception14.pb"
 model_path = "models/inception22.pb"
-labels_path = "labels.txt"
+labels_path = "data/labels.txt"
 # labels_path = "inception17.txt"
 # imgpath = "test_images/camera_image2.jpeg"
-imgpath = "pictures/5.jpeg"
+# imgpath = "pictures/5.jpeg"
 # imgpath = "pictures/queen/1.jpeg"
 
 # list_of_files = glob.glob('board_images/*')
@@ -309,7 +309,7 @@ gripper.set_parameters({"velocity":50.0,
 pivot_points = ["a8", "a7", "b8", "b7", "c8", "d8"]
 
 if len(sys.argv) != 2:
-	print "Usage: python main2.py [baxter_colour]"
+	print "Usage: python chessbaxter.py [baxter_colour]"
 	print "colour is 'black' or 'white', corresponds to the colour Baxter is playing as"
 	print "The game must be played from the start, or after your first move if Baxter is black"
 	sys.exit()
@@ -323,7 +323,7 @@ elif baxter_colour == "black":
 	move = 1
 	player_colour = "white"
 else:
-	print "Usage: python main2.py [baxter_colour]"
+	print "Usage: python chessbaxter.py [baxter_colour]"
 	print "colour is 'black' or 'white', corresponds to the colour Baxter is playing as"
 	print "The game must be played from the start, or after your first move if Baxter is black"
 	sys.exit()
