@@ -2,6 +2,14 @@ import rospy
 import baxter_interface
 import time
 
+"""
+    This is the code for Baxter to physically make the given chess move.
+    Takes the inital and final square, the position map of squares,
+    Baxters left and right arm, right gripper as input, as well as the pivot state
+    and capture state of the move. These are special cases for moves where a 
+    pivot is needed, or a piece is being captured
+"""
+
 # pivot can be 'None', 'From' or 'To'
 # capture is true or false
 def perform_move(initial, final, position_map, right, left, gripper, pivot, capture):

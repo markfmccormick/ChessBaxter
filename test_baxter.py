@@ -9,6 +9,13 @@ from create_board_string import create_board_string
 from chess_move import my_next_move
 from move_baxter import perform_move
 
+"""
+	This is a quickly put together script used to test the effectiveness of Baxters movement system
+	It mostly reuses code from the chess engine integration and main chessbaxter program, but instead
+	of working out the board state, Baxter plays a game of chess against himself. This is useful to test
+	how effective the Baxter movement system is without having to wait for board state classification.
+"""
+
 # Testing baxter loop
 square_labels = ["rook","knight","bishop","queen","king","bishop","knight","rook",
 		   "pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn",

@@ -3,6 +3,12 @@ import numpy as np
 import chess
 from create_board_string import create_board_string
 
+"""
+	Separated from the main program and put together in one place for readability.
+	Used to evaluate the effectiveness of all the naive classification systems tested
+	but not used in the main program.
+"""
+
 def show_naive_classification(center_keypoints, heatmap, countmap, labels, labels_map):
     square_labels = label_squares_point(center_keypoints, heatmap, countmap, labels, labels_map)
     board_state_string = create_board_string(square_labels)

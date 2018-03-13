@@ -1,5 +1,12 @@
 #!/usr/bin/env python
 
+"""
+	This program is used to configure the chessboard into the right position relative to Baxter.
+	It takes as argument a square such as a1, and picks up and puts down the piece where that square should be.
+	It should be used with squares h1,h8,a1,a8 to properly configure Baxter, if those squares are working 
+	so will the rest of the board.
+"""
+
 import rospy
 import baxter_interface
 import time
@@ -9,25 +16,6 @@ rospy.init_node('Hello_Baxter')
 right = baxter_interface.Limb('right')
 right.set_joint_position_speed(0.8)
 left = baxter_interface.Limb('left')
-
-# above = right.joint_angles()
-# above['right_s0']=0.0
-# above['right_s1']=0.0
-# above['right_e0']=0.0
-# above['right_e1']=0.0
-# above['right_w0']=0.0
-# above['right_w1']=0.0
-# above['right_w2']=0.0
-# above1={}
-# above1['left_s0']=0.0
-# above1['left_s1']=0.0
-# above1['left_e0']=0.0
-# above1['left_e1']=0.0
-# above1['left_w0']=0.0
-# above1['left_w1']=0.0
-# above1['left_w2']=0.0
-# right.move_to_joint_positions(above)
-# left.move_to_joint_positions(above1)
 
 base_right = {'right_s0': 0.08, 'right_s1': -1.0,
 	'right_e0': 1.19, 'right_e1': 1.94,

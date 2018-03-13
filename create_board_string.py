@@ -1,6 +1,19 @@
-# Takes the 64 length array of board position piece classification and
-# constructs the FEN notation for the board state
-# see: https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
+"""
+    Takes the 64 length array of board position piece classifications and
+    constructs the FEN notation for the board state
+    see: https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
+
+	Example of results, the array of board square piece classifications
+	results = ["rook","knight","bishop","queen","king","bishop","knight","rook",
+		   "pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn",
+		   "square","square","square","square","square","square","square","square",
+		   "square","square","square","square","square","square","square","square",
+		   "square","square","square","square","square","square","square","square",
+		   "square","square","square","square","square","square","square","square",
+		   "PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN","PAWN",
+		   "ROOK","KNIGHT","BISHOP","QUEEN","KING","BISHOP","KNIGHT","ROOK"]
+"""
+
 def create_board_string(results):
     current_state_of_the_board = ""
     consecutive_empty_square_counter = 0

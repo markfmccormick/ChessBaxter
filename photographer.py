@@ -20,6 +20,11 @@ import time
 import glob
 import re
 
+"""
+    Creates a ros node to subscribe to the kinect2_bridge ros node which must be separately run,
+    to get images captured from the kinect camera sensor, for use with board state classification.
+"""
+
 # Instantiate CvBridge
 bridge = CvBridge()
 new_image_counter = 0

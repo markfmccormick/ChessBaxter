@@ -2,12 +2,13 @@ import chess
 import chess.uci
 import stockfish
 
-def my_next_move(state_of_the_chessboard):
-	# To HACK, uncomment one of the states of the chessboard
-	# state_of_the_chessboard = "r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4"		# Initial state
-	# state_of_the_chessboard = "7k/8/4p3/b4pp1/p7/2P5/1P2P3/7K b - - 40 40"
-	# state_of_the_chessboard = "8/8/4b3/7n/8/8/8/8 b KQkq - 0 4"
+"""
+	Interface to the Stockfish chess engine to work out the best move that can be made with the given board state
+"""
 
+# Takes a board state string and uses the chess engine to work out the best move to make
+# Returns the best move, a check for the game being over, and the new board state after the move
+def my_next_move(state_of_the_chessboard):
 	# Initialise the board with its current state
 	board = chess.Board(state_of_the_chessboard)
 	print "Board before move: "
@@ -33,7 +34,7 @@ def my_next_move(state_of_the_chessboard):
 	engine.position(board)
 
 	try:
-		best_move = engine.go(depth=10)[0]
+		best_move = engine.go(depth=5)[0]
 	except RuntimeError:
 		raise EngineTerminatedException()
 		# return "Invalid state of the chessboard. Not a valid game."

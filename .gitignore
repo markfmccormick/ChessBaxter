@@ -1,4 +1,5 @@
 *.pyc
 .git
-/.DS_store/
+/.DS_Store
 /.vscode/
+.gitignore

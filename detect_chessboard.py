@@ -2,6 +2,13 @@ import numpy as np
 import cv2
 from matplotlib import pyplot as plt
 
+"""
+    Used to detect where in the given image path the chessboard is
+    Returns two sets of keypoints, the corners and centers of each square,
+    as pixel coordinates of their locations in the new image.
+"""
+
+# Displays a visualisation of where the chessboard was found in the image
 def display_detection(dst, img1, img2, matchesMask, keypoints, square_keypoints, center_keypoints, kp1, kp2, good):
     img2 = cv2.polylines(img2,[np.int32(dst)],True,255,3, cv2.LINE_AA)
     draw_params = dict(matchColor = (0,255,0), # draw matches in green color
@@ -20,7 +27,8 @@ def display_detection(dst, img1, img2, matchesMask, keypoints, square_keypoints,
 
     plt.imshow(img3, 'gray'),plt.show()
 
-#Based on the code in this tutorial: https://docs.opencv.org/3.3.0/d1/de0/tutorial_py_feature_homography.html
+# Based on the code in this tutorial: https://docs.opencv.org/3.3.0/d1/de0/tutorial_py_feature_homography.html
+# Returns sets of keypoints corresponding to the the center and corners of the chess squares
 def get_keypoints(imgpath):
 
     show_detection = False
