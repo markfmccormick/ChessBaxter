@@ -1,0 +1,24 @@
+Baxter performance:
+Game 1:
+	Depth - 10
+	Moves - 103
+	Errors - 13
+	Adjustements - 10
+6,2 first 50
+
+Game 2:
+	Depth - 3
+	Moves - 79
+	Errors - 10
+	Adjustements - 7
+6,3 first 50
+
+Game 3:
+	Depth - 5
+	Moves - 156
+	Errors - 14
+	Adjustements - 15
+6,5 first 50
+	only rook pawns and kings at the end, so more reliable at the end game
+	black achieved pawn promotion to queen
+	142 on is queen king mate

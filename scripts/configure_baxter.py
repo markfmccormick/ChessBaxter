@@ -10,6 +10,15 @@
 import rospy
 import baxter_interface
 import time
+import sys
+
+if len(sys.argv) != 2:
+    	print "Usage: python configure_baxter.py [square]"
+	print "[square] is a square label such as a1, d7, etc."
+	print "Run with h1, h8, a1, a8 to configure board into correct position for Baxter"
+	sys.exit()
+
+position = sys.argv[1]
 
 rospy.init_node('Hello_Baxter')
 
@@ -120,8 +129,6 @@ if len(sys.argv) != 2:
 	print "[square] is a square label such as a1, d7, etc."
 	print "Run with h1, h8, a1, a8 to configure board into correct position for Baxter"
 	sys.exit()
-
-baxter_colour = sys.argv[1]
 
 position = sys.argv[1]
 

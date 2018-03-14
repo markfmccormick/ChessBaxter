@@ -114,8 +114,11 @@ gripper.set_parameters({"velocity":50.0,
 						"dead_zone":5.0})
 capture = False
 board2 = chess.Board()
+count = 0
 while game_over == "":
 	moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
+	count += 1
+	print "Move: ", count
 	board = chess.Board(moved_board_state_string)
 	# castling = board.is_castling(best_move)
 
