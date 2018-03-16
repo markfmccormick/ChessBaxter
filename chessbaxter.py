@@ -17,14 +17,14 @@ import chess
 import chess.uci
 import stockfish
 import rospy
-import baxter_interface
+# import baxter_interface
 
 from detect_chessboard import get_keypoints
 from create_board_string import create_board_string
 from chess_move import my_next_move
 from naive_classification import show_naive_classification
 from load_maps import create_constants
-from move_baxter import perform_move
+# from move_baxter import perform_move
 
 """
 	The main program of the project
@@ -346,7 +346,7 @@ gripper.set_parameters({"velocity":50.0,
 						"dead_zone":5.0})
 
 # Points where a pivot is required
-pivot_points = ["a8", "a7", "b8", "b7", "c8", "d8"]
+pivot_points = ["a8", "b8", "c8"]
 
 list_of_files = glob.glob('board_images/*')
 imgpath = max(list_of_files, key=os.path.getctime)
@@ -436,6 +436,7 @@ while game_over == "":
 	# Work out the move made by the user
 	move_made = ""
 	while move_made == "":
+		# Get the latest kinect image
 		list_of_files = glob.glob('board_images/*')
 		imgpath = max(list_of_files, key=os.path.getctime)
 
