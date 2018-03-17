@@ -1,46 +1,46 @@
 Visualising heatmap
 Method - Center point: 
-n n n n q n n n
-n n n n n q n n
-. . . . . . . .
-. . . . . . . Q
+. . . . n n . .
 . . . . . . . .
 . . . . . . . .
-K P P P P P P P
-N N N P P Q P k
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
 Method - Box total: 
-n n n n q n n n
-n n n n n q n n
-. . . . . . . .
-. . . . . . . Q
+. . . . n n . .
 . . . . . . . .
 . . . . . . . .
-K P P P P P P P
-N N N P P Q P k
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
 Method - Peak value: 
-n n n n q n n n
-n n n n n n n n
 . . . . . . . .
 . . . . . . . .
 . . . . . . . .
 . . . . . . . .
-K P P P P P P P
-N N N P P P P P
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
 Method - Center weighted: 
-n n n n q n n n
-n n n n n q n n
-. . . . . . . .
-. . . . . . . Q
 . . . . . . . .
 . . . . . . . .
-K P P P P P P P
-N N N P P Q P k
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
 Method - Box total threshold: 
-n n n n q n n n
-n n n n n q n n
-. . . . . . . .
-. . . . . . . Q
+. . . . n . . .
 . . . . . . . .
 . . . . . . . .
-K P P P P P P P
-N N N P P Q P k
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .
+. . . . . . . .

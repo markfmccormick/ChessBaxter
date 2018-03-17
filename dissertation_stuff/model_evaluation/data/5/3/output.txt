@@ -38,7 +38,7 @@ N P N N P P P P
 Method - Box total threshold: 
 n n n n q n n n
 n n n q n n n q
-. . . . . n n .
+. . . . . n . .
 . . . . n . . Q
 . . . . P P . .
 . . . . . P . .

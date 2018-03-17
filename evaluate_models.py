@@ -125,12 +125,12 @@ def classify_board(imgpath, path):
 
 	heatmap, countmap = create_heatmap(img, stepSize, (window_x, window_y), model, heatmap, countmap, 0.0)
 
-	# # Crude thresholding
-	# for y in range(len(heatmap)):
-	# 	for x in range(len(heatmap[y])):
-	# 		for z in range(len(heatmap[y][x])):
-	# 			if heatmap[y][x][z] <= 1.5:
-	# 				heatmap[y][x][z] = 0
+	# Crude thresholding
+	for y in range(len(heatmap)):
+		for x in range(len(heatmap[y])):
+			for z in range(len(heatmap[y][x])):
+				if heatmap[y][x][z] <= 1.5:
+					heatmap[y][x][z] = 0
 	
 	# Visualise the generated heatmap
 	visualise_heatmap(img, heatmap, countmap, labels, path + "heatmaps/")
@@ -302,26 +302,26 @@ window_x = 100
 stepSize = 20
 labels_path = "data/labels.txt"
 
-for model_path in model_paths:
-    model = Model(base_path + model_path)
-    
-    for imgpath in image_paths:
-        number = imgpath.split("/")[3].split(".")[0]
-        m_no = model_path.split("/")[0]
-        path = base_path+"data/"+str(number)+"/"+str(m_no)+"/"
-        print path
+# for model_path in model_paths:
+model_path = model_paths[3]
+model = Model(base_path + model_path)
 
-        if path == base_path+"data/"+"43/"+"22/":
-            out = open(path + "output.txt", "w")
-            sys.stdout = out
+for imgpath in image_paths:
+	number = imgpath.split("/")[3].split(".")[0]
+	m_no = model_path.split("/")[0]
+	path = base_path+"data/"+str(number)+"/"+str(m_no)+"/"
+	print path
 
-            if not os.path.exists(path+"heatmaps/"):
-                os.makedirs(path+"heatmaps/")
+	out = open(path + "output.txt", "w")
+	sys.stdout = out
 
-            heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath, path)
-            show_naive_classification(center_keypoints, heatmap, countmap, labels, labels_map)
-            sys.stdout = sys.__stdout__
-            out.close()
+	if not os.path.exists(path+"heatmaps/"):
+		os.makedirs(path+"heatmaps/")
+
+	heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath, path)
+	show_naive_classification(center_keypoints, heatmap, countmap, labels, labels_map)
+	sys.stdout = sys.__stdout__
+	out.close()
 
 
 
