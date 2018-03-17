@@ -35,7 +35,7 @@ board_square_map= {"a1":0 ,"a2":1, "a3":2, "a4":3, "a5":4, "a6":5, "a7":6, "a8":
 					"g1":48 ,"g2":49, "g3":50, "g4":51, "g5":52, "g6":53, "g7":54, "g8":55, 
 					"h1":56 ,"h2":57, "h3":58, "h4":59, "h5":60, "h6":61, "h7":62, "h8":63}
 
-pivot_points = ["a8", "a7", "b8", "b7", "c8", "d8"]
+pivot_points = ["a8", "b8", "c8"]
 
 board_state_string = create_board_string(square_labels)
 board_state_string += " w KQkq - 0 0"
