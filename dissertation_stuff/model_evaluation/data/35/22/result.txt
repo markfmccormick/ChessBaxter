@@ -1,0 +1,10 @@
+Results: Method - Center point: 
+Mistakes: 17
+Method - Box total: 
+Mistakes: 17
+Method - Peak value: 
+Mistakes: 18
+Method - Center weighted: 
+Mistakes: 17
+Method - Box total threshold: 
+Mistakes: 17
