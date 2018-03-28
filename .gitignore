@@ -1,6 +1,6 @@
 *.pyc
 .git
-/.DS_Store
+.DS_Store
 /.vscode/
 .gitignore
 .idea/

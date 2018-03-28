@@ -120,9 +120,7 @@ while game_over == "":
 	count += 1
 	print "Move: ", count
 	board = chess.Board(moved_board_state_string)
-	# castling = board.is_castling(best_move)
 
-	# print "Castling: " + str(castling)
 
 	initial = best_move.uci()[0:2]
 	final = best_move.uci()[2:4]
@@ -140,9 +138,8 @@ while game_over == "":
 
 	print initial, final
 	print "Move made: "+best_move.uci()
-	# print "Board after move: "
-	# print board
-	# Perform move with Baxter
+
+
 	if castling == False:
 		pivot = ""
 		capture = False

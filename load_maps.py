@@ -1,6 +1,6 @@
 """
     A simple function separated from the main program to make it more readable and easier to navigate.
-    Loads all the static data maps and constants used within the main program which take up a lot of space.
+    Loads all the static data maps and constants used within the main program.
 """
 
 def create_constants():

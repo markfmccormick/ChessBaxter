@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
     Used to detect where in the given image path the chessboard is
     Returns two sets of keypoints, the corners and centers of each square,
     as pixel coordinates of their locations in the new image.
+    Requires opencv to be compiled with extra modules.
 """
 
 # Displays a visualisation of where the chessboard was found in the image
@@ -31,11 +32,12 @@ def display_detection(dst, img1, img2, matchesMask, keypoints, square_keypoints,
 # Returns sets of keypoints corresponding to the the center and corners of the chess squares
 def get_keypoints(imgpath):
 
+    # Set to true to see the output of the detection for debugging
     show_detection = False
 
     MIN_MATCH_COUNT = 10
 
-    img1 = cv2.imread('chessboard.png',0)  #query images
+    img1 = cv2.imread('chessboard.png',0)  #query image
     img2 = cv2.imread(imgpath, 0)
 
     # Initiate SIFT detector

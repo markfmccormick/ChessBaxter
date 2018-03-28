@@ -3,7 +3,7 @@
     constructs the FEN notation for the board state
     see: https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
 
-	Example of results, the array of board square piece classifications
+	Example of results, the input to the function
 	results = ["rook","knight","bishop","queen","king","bishop","knight","rook",
 		   "pawn","pawn","pawn","pawn","pawn","pawn","pawn","pawn",
 		   "square","square","square","square","square","square","square","square",

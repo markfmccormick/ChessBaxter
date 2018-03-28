@@ -17,14 +17,14 @@ import chess
 import chess.uci
 import stockfish
 import rospy
-# import baxter_interface
+import baxter_interface
 
 from detect_chessboard import get_keypoints
 from create_board_string import create_board_string
 from chess_move import my_next_move
 from naive_classification import show_naive_classification
 from load_maps import create_constants
-# from move_baxter import perform_move
+from move_baxter import perform_move
 
 """
 	The main program of the project
@@ -296,39 +296,14 @@ else:
 
 
 labels, labels_map, piece_count, board_square_map, position_map, base_right, base_left, precedence_list, letter_count_map = create_constants()
-# model_path = "models/inception14.pb"
 model_path = "models/inception22.pb"
 labels_path = "data/labels.txt"
-# labels_path = "inception17.txt"
-# imgpath = "test_images/camera_image2.jpeg"
-# imgpath = "pictures/5.jpeg"
-# imgpath = "pictures/queen/1.jpeg"
-
-# list_of_files = glob.glob('board_images/*')
-# imgpath = max(list_of_files, key=os.path.getctime)
 
 model = Model(model_path)
 
 window_y = 100
 window_x = 100
 stepSize = 20
-
-# heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
-
-# for y in range(len(heatmap)):
-# 	for x in range(len(heatmap[y])):
-# 		heatmap[y][x] = heatmap[y][x]/countmap[y][x]
-
-# show_naive_classification(center_keypoints, heatmap, countmap, labels, labels_map)
-
-# square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
-# square_data = apply_scaling(chess.Board(), square_data, labels, labels_map, board_square_map)
-# square_labels = square_classification_smart_precedence(square_data, labels, labels_map, piece_count, precedence_list)
-# board_state_string = create_board_string(square_labels)
-# board_state_string += " w KQkq - 0 1"
-# board = chess.Board(board_state_string)
-# print "Method - Box total smart: "
-# print board
 
 # Initialise Baxter
 rospy.init_node('Chess_Baxter')
@@ -351,19 +326,12 @@ pivot_points = ["a8", "b8", "c8"]
 list_of_files = glob.glob('board_images/*')
 imgpath = max(list_of_files, key=os.path.getctime)
 
-# heatmap, countmap, center_keypoints, crop_points = classify_board(imgpath)
-# square_data = box_total_data(center_keypoints, heatmap, countmap, labels, labels_map)
-# square_data = apply_scaling(chess.Board(), square_data, labels, labels_map, board_square_map)
-# square_labels = square_classification_smart_precedence(square_data, labels, labels_map, piece_count, precedence_list)
-# board_state_string = create_board_string(square_labels)
 board_state_string = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"
 if baxter_colour == "black":
 	board_state_string += " b KQkq - 0 1"
 else:
 	board_state_string += " w KQkq - 0 1"
 pre_board = chess.Board(board_state_string)
-# print "Board before Baxter move: "
-# print pre_board
 
 board = pre_board
 
@@ -372,14 +340,11 @@ while game_over == "":
 
 	moved_board_state_string, game_over, best_move = my_next_move(board_state_string)
 	post_board = chess.Board(moved_board_state_string)
-	# castling = post_board.is_castling(best_move)
 
 	initial = best_move.uci()[0:2]
 	final = best_move.uci()[2:4]
 	print initial, final
 	print "Move made: "+best_move.uci()
-	# print "Board after Baxter move: "
-	# print post_board
 
 	# Check if move is castling
 	castling = False

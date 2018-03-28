@@ -1,7 +1,0 @@
-bishop
-empty square
-king
-knight
-pawn
-queen
-rook

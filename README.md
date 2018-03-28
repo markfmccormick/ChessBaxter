@@ -1,4 +1,6 @@
 # ChessBaxter
-My 4th Year Project
+4th year project
 
-Lorenzo's project, now cut down to the essentials
+This project is a system that allows Baxter the robot to play chess against a human opponent.
+
+

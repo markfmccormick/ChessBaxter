@@ -74,7 +74,7 @@ def main():
     rospy.init_node('image_listener')
     # Define image topic
     image_topic = "/kinect2/hd/image_color"
-    # Set up publisher - Need to run roslaunch kinect2_bridge kinect2_bridge.launch in a terminal
+    # Set up publisher - Need to run roslaunch kinect2_bridge kinect2_bridge.launch in a separate terminal
     pub = rospy.Publisher(image_topic, Image, queue_size = 0)
     # Set up subscriber and define it's callback function
     rospy.Subscriber(image_topic, Image, image_callback)
